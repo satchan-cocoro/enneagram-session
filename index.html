@@ -7,238 +7,227 @@
 <meta name="description" content="エニアグラムの9タイプ。診断で出た結果を、公認心理師と話しながら「本当にそうか」見きわめる60分。オンライン・7,700円。">
 <meta property="og:title" content="その診断結果、ほんとうに「あなた」ですか？｜エニアグラムセッション">
 <meta property="og:description" content="診断で出たタイプを、公認心理師と話しながら見きわめる60分。明日からの動き方をひとつ持ち帰ります。">
+<meta property="og:image" content="https://satchan-cocoro.github.io/enneagram-session/chara.jpg">
 <meta property="og:type" content="website">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --cream:#FDF8F2; --white:#fff; --mist:#F7F0E9;
-  --ink:#2D2D2D; --gray:#6B6B6B; --light:#9A9A9A;
-  --accent:#E8956D; --accent-deep:#C96A45; --accent2:#F4C5B0;
-  --dark:#3A2A22; --line:#EFE7DD;
+  --navy:#1B3A5F; --navy-dp:#122A46;
+  --gold:#C9A961; --gold-lt:#E3C98F; --gold-dk:#A8873F;
+  --paper:#F9F6F0; --paper2:#F3EEE4; --white:#fff;
+  --ink:#33312C; --gray:#6E685E; --line:#E6DCCB;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{
-  font-family:'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
-  background:#F3E9DE; color:var(--ink); line-height:2;
+  font-family:'Noto Sans JP','Hiragino Kaku Gothic ProN',sans-serif;
+  background:var(--paper2); color:var(--ink); line-height:2;
   font-size:15px; -webkit-text-size-adjust:100%;
-  padding-bottom:84px; overflow-x:hidden;
+  padding-bottom:86px; overflow-x:hidden;
 }
-.wrap{max-width:680px;margin:0 auto;background:var(--cream);box-shadow:0 0 60px rgba(58,42,34,.06);}
-section{padding:64px 24px;}
-section.mist{background:var(--mist);}
-section.white{background:var(--white);}
+.mincho{font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;}
+.gold{background:linear-gradient(176deg,#EBD5A2 0%,#C9A961 46%,#9E7C33 100%);
+      -webkit-background-clip:text;background-clip:text;color:transparent;}
+.wrap{max-width:680px;margin:0 auto;background:var(--paper);position:relative;
+      box-shadow:0 0 60px rgba(27,42,70,.07);}
+section{padding:66px 24px;position:relative;overflow:hidden;}
+section.tone{background:linear-gradient(180deg,#F6F1E7,#FAF7F1);}
 
-.eyebrow{
-  font-size:11px;letter-spacing:.22em;color:var(--accent-deep);font-weight:500;
-  display:flex;align-items:center;gap:12px;margin-bottom:18px;
-}
-.eyebrow::after{content:'';flex:1;height:1px;background:var(--accent2);}
+/* ---- 水彩の飾り ---- */
+.deco{position:absolute;pointer-events:none;z-index:0;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 26%,rgba(0,0,0,.5) 52%,transparent 76%);
+  mask-image:radial-gradient(ellipse at center,#000 26%,rgba(0,0,0,.5) 52%,transparent 76%);}
+.deco img{display:block;width:100%;}
+.d-tr{right:-74px;top:-50px;width:190px;opacity:.34;transform:scaleX(-1);}
+.d-bl{left:-76px;bottom:-60px;width:200px;opacity:.34;}
+.d-tl{left:-70px;top:-44px;width:186px;opacity:.3;}
+.d-br{right:-68px;bottom:-44px;width:186px;opacity:.3;transform:scaleX(-1);}
+section > *:not(.deco){position:relative;z-index:1;}
 
-h2{
-  font-family:'Noto Serif JP',serif;font-size:23px;font-weight:600;
-  line-height:1.75;margin-bottom:26px;text-wrap:balance;letter-spacing:.01em;
-}
-h2 .em{color:var(--accent-deep);}
-h3{font-family:'Noto Serif JP',serif;font-size:17px;font-weight:600;margin-bottom:8px;line-height:1.7;}
+/* ---- 見出し ---- */
+.eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.eyebrow span{font-size:11px;letter-spacing:.22em;color:var(--gold-dk);font-weight:500;}
+.eyebrow i{flex:1;height:1px;background:linear-gradient(90deg,var(--gold),rgba(201,169,97,.08));}
+h2{font-size:24px;font-weight:600;line-height:1.72;margin-bottom:24px;
+   color:var(--navy);text-wrap:balance;letter-spacing:.01em;}
+h3{font-size:17px;font-weight:600;margin-bottom:8px;line-height:1.7;color:var(--navy);}
 p{margin-bottom:20px;}
 p:last-child{margin-bottom:0;}
-.lead{font-size:14px;color:var(--gray);}
-.small{font-size:12px;color:var(--light);line-height:1.9;}
+.lead{font-size:13px;color:var(--gray);margin-bottom:18px;}
+.small{font-size:12px;color:#948C80;line-height:1.9;}
 
-/* ===== ヒーロー ===== */
-.hero{
-  background:linear-gradient(170deg,#FFF9F4 0%,#FBEDE2 55%,#F7E2D3 100%);
-  padding:72px 24px 60px;text-align:center;position:relative;overflow:hidden;
-}
-.hero::before{
-  content:'';position:absolute;width:320px;height:320px;border-radius:50%;
-  background:radial-gradient(circle,rgba(232,149,109,.16),transparent 68%);
-  top:-130px;right:-110px;
-}
-.hero .tag{
-  display:inline-block;background:rgba(255,255,255,.82);border:1px solid var(--accent2);
-  color:var(--accent-deep);font-size:11px;letter-spacing:.16em;
-  padding:6px 18px;border-radius:999px;margin-bottom:26px;position:relative;
-}
-.hero h1{
-  font-family:'Noto Serif JP',serif;font-size:29px;font-weight:700;line-height:1.68;
-  margin-bottom:24px;position:relative;text-wrap:balance;
-}
-.hero h1 .em{color:var(--accent-deep);}
-.hero .sub{font-size:14.5px;color:#5A4A42;line-height:2.05;position:relative;margin-bottom:34px;}
-.hero .spec{
-  font-size:12.5px;color:var(--gray);margin-top:16px;position:relative;
-  letter-spacing:.02em;
-}
+/* 罫飾り */
+.rule{display:flex;align-items:center;justify-content:center;gap:12px;margin:30px 0;}
+.rule i{height:1px;width:76px;background:linear-gradient(90deg,rgba(201,169,97,0),var(--gold));}
+.rule i:last-child{transform:scaleX(-1);}
+.rule b{width:9px;height:9px;border:1.3px solid var(--gold);transform:rotate(45deg);}
 
-/* ===== CTA ===== */
-.cta{
-  display:block;width:100%;max-width:400px;margin:0 auto;
-  padding:19px 20px;border-radius:999px;text-decoration:none;text-align:center;
-  background:linear-gradient(135deg,#EDA47F,#C96A45);
-  color:#fff;font-size:16.5px;font-weight:700;letter-spacing:.03em;
-  box-shadow:0 10px 26px rgba(201,106,69,.28);
-  transition:transform .18s, box-shadow .18s;position:relative;
-}
-.cta:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(201,106,69,.34);}
-.cta .mini{display:block;font-size:11.5px;font-weight:400;opacity:.92;margin-top:3px;letter-spacing:.02em;}
+/* ---- ヒーロー ---- */
+.hero{padding:52px 24px 54px;text-align:center;position:relative;overflow:hidden;
+      background:linear-gradient(178deg,#FBF8F3 0%,#F6F0E5 100%);}
+.hero .side{position:absolute;left:-58px;top:0;width:168px;height:100%;opacity:.32;
+  -webkit-mask-image:linear-gradient(90deg,#000 8%,transparent 86%);
+  mask-image:linear-gradient(90deg,#000 8%,transparent 86%);}
+.hero .side img{width:100%;height:100%;object-fit:cover;object-position:left top;}
+.hero .side.r{left:auto;right:-58px;transform:scaleX(-1);}
+.hero > *{position:relative;z-index:2;}
+.seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+  width:104px;height:104px;border-radius:50%;background:var(--navy);color:#F3E7CC;
+  line-height:1.45;margin-bottom:22px;position:relative;
+  box-shadow:0 8px 22px rgba(27,58,95,.24);}
+.seal::after{content:'';position:absolute;inset:6px;border:1px solid rgba(227,201,143,.5);border-radius:50%;}
+.seal .a{font-size:12px;letter-spacing:.04em;}
+.seal .b{font-size:10px;color:#C4B08B;}
+.seal .c{font-size:15px;margin-top:1px;letter-spacing:.02em;}
+.hero h1{font-size:30px;font-weight:700;line-height:1.62;letter-spacing:.02em;
+         color:var(--navy);margin-bottom:20px;text-wrap:balance;}
+.hero .sub{font-size:14.5px;color:#544E45;line-height:2.05;margin-bottom:26px;}
+.chara{width:146px;height:146px;margin:0 auto 14px;border-radius:50%;position:relative;
+  padding:6px;background:linear-gradient(160deg,#F7F2E8,#EFE6D5);
+  box-shadow:0 8px 24px rgba(27,58,95,.13);}
+.chara::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);border-radius:50%;}
+.chara .cut{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;background:#F9F6F0;}
+.chara img{position:absolute;width:250px;left:-66px;top:-10px;display:block;}
+.hero .cap{font-size:11.5px;letter-spacing:.16em;color:var(--gold-dk);margin-bottom:16px;}
+.hero .spec{font-size:12.5px;color:var(--gray);margin-top:16px;letter-spacing:.02em;}
+
+/* ---- CTA ---- */
+.cta{display:block;width:100%;max-width:400px;margin:0 auto;padding:18px 20px;
+  border-radius:4px;text-decoration:none;text-align:center;
+  background:var(--navy);color:#F6EFDF;font-size:16px;font-weight:500;letter-spacing:.08em;
+  border:1px solid var(--gold);box-shadow:0 8px 24px rgba(27,58,95,.2);
+  transition:.2s;font-family:'Shippori Mincho',serif;}
+.cta:hover{background:var(--navy-dp);transform:translateY(-2px);}
+.cta .mini{display:block;font-size:11.5px;font-weight:400;color:#CBB893;margin-top:4px;
+  letter-spacing:.04em;font-family:'Noto Sans JP',sans-serif;}
 .cta-note{text-align:center;font-size:12px;color:var(--gray);margin-top:14px;}
 
-/* ===== チェックリスト ===== */
-.checks{list-style:none;margin:6px 0 28px;}
-.checks li{
-  background:var(--white);border:1px solid var(--line);border-radius:14px;
-  padding:16px 18px 16px 50px;margin-bottom:11px;font-size:14.5px;line-height:1.85;
-  position:relative;
-}
-.checks li::before{
-  content:'';position:absolute;left:18px;top:19px;width:18px;height:18px;
-  border:1.8px solid var(--accent2);border-radius:5px;
-}
-.mist .checks li{background:var(--cream);}
+/* ---- チェックリスト ---- */
+.checks{list-style:none;margin:8px 0 26px;}
+.checks li{background:var(--white);border:1px solid var(--line);border-radius:3px;
+  padding:15px 18px 15px 48px;margin-bottom:10px;font-size:14.5px;line-height:1.85;position:relative;}
+.checks li::before{content:'';position:absolute;left:18px;top:19px;width:15px;height:15px;
+  border:1.3px solid var(--gold);transform:rotate(45deg);}
 
-/* ===== 引用・強調ブロック ===== */
-.pull{
-  background:var(--white);border-left:3px solid var(--accent);
-  border-radius:0 14px 14px 0;padding:22px 22px;margin:26px 0;
-}
-.mist .pull{background:var(--cream);}
+/* ---- 引用 ---- */
+.pull{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--gold);
+  padding:22px;margin:26px 0;}
 .pull p{font-size:14.5px;margin-bottom:12px;}
 .pull p:last-child{margin-bottom:0;}
-.pull .who{font-size:11.5px;color:var(--light);}
-.big{
-  font-family:'Noto Serif JP',serif;font-size:19px;line-height:1.85;
-  color:var(--accent-deep);font-weight:600;text-align:center;margin:30px 0;
-}
+.pull .who{font-size:11.5px;color:#9A9184;}
+.big{font-size:19px;line-height:1.9;color:var(--navy);text-align:center;margin:30px 0;font-weight:600;}
 
-/* ===== 番号つきカード ===== */
-.steps{counter-reset:s;}
-.stepcard{
-  background:var(--white);border:1px solid var(--line);border-radius:16px;
-  padding:24px 22px 22px;margin-bottom:14px;position:relative;
-}
-.mist .stepcard{background:var(--cream);}
-.stepcard .num{
-  font-family:'Noto Serif JP',serif;font-size:12px;letter-spacing:.14em;
-  color:var(--accent);font-weight:700;display:block;margin-bottom:6px;
-}
+/* ---- 番号カード ---- */
+.stepcard{background:var(--white);border:1px solid var(--line);padding:24px 22px;margin-bottom:13px;
+  position:relative;}
+.stepcard::before{content:'';position:absolute;left:-1px;top:-1px;width:34px;height:34px;
+  border-left:2px solid var(--gold);border-top:2px solid var(--gold);}
+.stepcard .num{font-family:'Shippori Mincho',serif;font-size:13px;letter-spacing:.16em;
+  display:block;margin-bottom:6px;}
 .stepcard p{font-size:14px;color:var(--gray);margin:0;line-height:1.9;}
 
-/* ===== 流れ ===== */
+/* ---- 流れ ---- */
 .flow{list-style:none;counter-reset:f;}
-.flow li{
-  padding:0 0 26px 42px;position:relative;font-size:14.5px;line-height:1.85;
-}
-.flow li::before{
-  counter-increment:f;content:counter(f);
-  position:absolute;left:0;top:2px;width:26px;height:26px;border-radius:50%;
-  background:var(--accent);color:#fff;font-size:12px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-}
-.flow li::after{
-  content:'';position:absolute;left:13px;top:32px;bottom:6px;width:1px;background:var(--accent2);
-}
+.flow li{padding:0 0 26px 44px;position:relative;font-size:14.5px;line-height:1.85;}
+.flow li::before{counter-increment:f;content:counter(f);
+  position:absolute;left:0;top:2px;width:27px;height:27px;border-radius:50%;
+  background:var(--navy);color:var(--gold-lt);font-size:12px;
+  display:flex;align-items:center;justify-content:center;font-family:'Shippori Mincho',serif;}
+.flow li::after{content:'';position:absolute;left:13px;top:33px;bottom:6px;width:1px;
+  background:linear-gradient(180deg,var(--gold),rgba(201,169,97,.15));}
 .flow li:last-child{padding-bottom:0;}
 .flow li:last-child::after{display:none;}
 
-/* ===== プロフィール ===== */
+/* ---- プロフィール ---- */
 .profile{text-align:center;}
-.profile img{
-  width:184px;height:184px;object-fit:cover;object-position:center 24%;
-  border-radius:50%;border:5px solid var(--white);
-  box-shadow:0 10px 30px rgba(58,42,34,.13);margin-bottom:20px;
-}
-.profile .name{font-family:'Noto Serif JP',serif;font-size:21px;font-weight:600;}
-.profile .role{font-size:12.5px;color:var(--accent-deep);letter-spacing:.1em;margin:6px 0 22px;}
+.pframe{width:186px;height:186px;margin:0 auto 22px;border-radius:50%;position:relative;
+  padding:7px;background:var(--paper);}
+.pframe::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);border-radius:50%;}
+.pframe img{width:100%;height:100%;object-fit:cover;object-position:center 24%;border-radius:50%;}
+.profile .name{font-size:22px;font-weight:600;color:var(--navy);}
+.profile .role{font-size:12px;color:var(--gold-dk);letter-spacing:.14em;margin:6px 0 22px;}
 .profile p{text-align:left;font-size:14.5px;}
 
-/* ===== FAQ ===== */
-details{
-  background:var(--white);border:1px solid var(--line);border-radius:14px;
-  margin-bottom:11px;overflow:hidden;
-}
-.mist details{background:var(--cream);}
-summary{
-  padding:18px 48px 18px 20px;font-size:14.5px;font-weight:500;cursor:pointer;
-  list-style:none;position:relative;line-height:1.75;
-}
+/* ---- FAQ ---- */
+details{background:var(--white);border:1px solid var(--line);margin-bottom:10px;overflow:hidden;}
+summary{padding:17px 46px 17px 20px;font-size:14.5px;font-weight:500;cursor:pointer;
+  list-style:none;position:relative;line-height:1.75;color:var(--navy);}
 summary::-webkit-details-marker{display:none;}
-summary::after{
-  content:'＋';position:absolute;right:20px;top:50%;transform:translateY(-50%);
-  color:var(--accent);font-size:15px;font-weight:400;
-}
+summary::after{content:'＋';position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  color:var(--gold-dk);font-size:14px;font-weight:400;}
 details[open] summary::after{content:'−';}
 details .body{padding:0 20px 20px;font-size:14px;color:var(--gray);line-height:1.95;}
+details a{color:var(--gold-dk);}
 
-/* ===== 価格 ===== */
-.price{
-  background:var(--white);border:2px solid var(--accent2);border-radius:20px;
-  padding:32px 24px;text-align:center;margin-bottom:26px;
-}
-.price .ttl{font-size:13px;color:var(--gray);letter-spacing:.08em;}
-.price .yen{
-  font-family:'Noto Serif JP',serif;font-size:44px;font-weight:700;
-  color:var(--accent-deep);line-height:1.25;margin:6px 0;
-  font-variant-numeric:tabular-nums;
-}
+/* ---- 価格 ---- */
+.price{background:var(--white);border:1px solid var(--gold);padding:8px;margin-bottom:26px;}
+.price .in{border:1px solid var(--line);padding:30px 22px;text-align:center;}
+.price .ttl{font-size:13px;color:var(--gray);letter-spacing:.1em;}
+.price .yen{font-family:'Shippori Mincho',serif;font-size:46px;font-weight:700;
+  color:var(--navy);line-height:1.3;margin:8px 0;font-variant-numeric:tabular-nums;}
 .price .yen small{font-size:15px;font-weight:400;color:var(--gray);margin-left:4px;}
-.price .spec{font-size:13.5px;color:var(--gray);line-height:1.95;margin-top:10px;}
+.price .spec{font-size:13.5px;color:var(--gray);line-height:1.95;margin-top:8px;}
 
-/* ===== 最終セクション ===== */
-.closing{background:var(--dark);color:#F5EDE6;text-align:center;padding:64px 24px 70px;}
+/* ---- 同意・注記 ---- */
+.agree{display:flex;gap:10px;align-items:flex-start;margin-top:20px;font-size:13px;line-height:1.7;}
+.policy{font-size:12px;color:var(--gray);background:var(--white);border:1px solid var(--line);
+  padding:16px 18px;margin-top:18px;line-height:1.85;}
+.policy b{color:var(--navy);}
+.policy a{color:var(--gold-dk);}
+
+/* ---- 最終 ---- */
+.closing{background:var(--navy);color:#EFE6D8;text-align:center;padding:62px 24px 68px;position:relative;overflow:hidden;}
 .closing h2{color:#fff;}
-.closing p{color:#E0D2C7;font-size:14.5px;}
-.closing .cta{background:linear-gradient(135deg,#F0AE8B,#D97A53);box-shadow:0 10px 26px rgba(0,0,0,.3);}
-.closing .cta-note{color:#B9A79A;}
+.closing p{color:#CFC3B2;font-size:14.5px;}
+.closing .cta{background:#F3E7CC;color:var(--navy);border-color:var(--gold-lt);}
+.closing .cta .mini{color:#7A6A4F;}
+.closing .cta-note{color:#A9998A;}
+.closing .rule i{background:linear-gradient(90deg,rgba(227,201,143,0),var(--gold-lt));}
+.closing .rule b{border-color:var(--gold-lt);}
 
-/* ===== 追従バー ===== */
-.bar{
-  position:fixed;left:0;right:0;bottom:0;z-index:50;
-  background:rgba(253,248,242,.93);backdrop-filter:blur(12px);
-  border-top:1px solid var(--line);
-  padding:11px 16px calc(11px + env(safe-area-inset-bottom));
-}
+/* ---- 追従バー ---- */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:rgba(249,246,240,.94);backdrop-filter:blur(12px);border-top:1px solid var(--gold);
+  padding:11px 16px calc(11px + env(safe-area-inset-bottom));}
 .bar .inner{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px;}
 .bar .info{flex:0 0 auto;line-height:1.4;}
-.bar .info b{font-family:'Noto Serif JP',serif;font-size:18px;color:var(--accent-deep);
-             display:block;font-variant-numeric:tabular-nums;}
+.bar .info b{font-family:'Shippori Mincho',serif;font-size:19px;color:var(--navy);
+  display:block;font-variant-numeric:tabular-nums;}
 .bar .info span{font-size:10.5px;color:var(--gray);}
-.bar a{
-  flex:1;padding:14px 12px;border-radius:999px;text-align:center;text-decoration:none;
-  background:linear-gradient(135deg,#EDA47F,#C96A45);color:#fff;font-size:14.5px;font-weight:700;
-  box-shadow:0 6px 16px rgba(201,106,69,.26);
-}
+.bar a{flex:1;padding:14px 12px;border-radius:4px;text-align:center;text-decoration:none;
+  background:var(--navy);color:#F6EFDF;font-size:14.5px;letter-spacing:.06em;
+  border:1px solid var(--gold);font-family:'Shippori Mincho',serif;}
 
-footer{background:var(--dark);color:#9A8A80;text-align:center;font-size:11.5px;
-        padding:0 24px 40px;line-height:2;}
-footer a{color:#B9A79A;}
+footer{background:var(--navy-dp);color:#8E8275;text-align:center;font-size:11.5px;
+  padding:0 24px 40px;line-height:2;}
+footer a{color:#A9998A;}
 
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important;scroll-behavior:auto!important;}
-}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<!-- ============ 1. ヒーロー ============ -->
+<!-- ===== ヒーロー ===== -->
 <div class="hero">
-  <span class="tag">ONLINE ／ 60min</span>
-  <h1>その診断結果、<br>ほんとうに<br><span class="em">「あなた」</span>ですか？</h1>
-  <p class="sub">
-    エニアグラムの9タイプ。<br>
-    診断で出た結果を、公認心理師と話しながら<br>
-    「本当にそうか」を見きわめる60分です。
-  </p>
+  <div class="side"><img src="deco-left.jpg" alt=""></div>
+  <div class="side r"><img src="deco-left.jpg" alt=""></div>
+
+  <div class="chara"><div class="cut"><img src="chara.jpg" alt=""></div></div>
+  <p class="cap">公認心理師がひらく 60分</p>
+  <h1 class="mincho">その診断結果、<br>ほんとうに<br><span class="gold">「あなた」</span>ですか？</h1>
+  <div class="rule"><i></i><b></b><i></i></div>
+  <p class="sub">エニアグラムの9タイプ。<br>
+    診断で出た結果を、公認心理師と話しながら<br>「本当にそうか」を見きわめる時間です。</p>
   <a class="cta" href="apply/">日時を選んで申し込む<span class="mini">空いている時間がその場でわかります</span></a>
   <p class="spec">オンライン（Zoom）／ 60分 7,700円（税込）</p>
 </div>
 
-<!-- ============ 2. お悩み ============ -->
+<!-- ===== 2. お悩み ===== -->
 <section>
-  <p class="eyebrow">CHECK</p>
-  <h2>診断は受けた。<br>でも、明日は変わらなかった。</h2>
+  <div class="deco d-tr"><img src="leaf.jpg" alt=""></div>
+  <p class="eyebrow"><span>CHECK</span><i></i></p>
+  <h2 class="mincho">診断は受けた。<br>でも、明日は変わらなかった。</h2>
   <ul class="checks">
     <li>結果を読んで「当たってる…かな？」で止まっている</li>
     <li>タイプはわかったけど、明日どうすればいいかはわからない</li>
@@ -250,10 +239,11 @@ footer a{color:#B9A79A;}
   あなたのせいじゃないかもしれません。</p>
 </section>
 
-<!-- ============ 3. 原因の再定義 ============ -->
-<section class="mist">
-  <p class="eyebrow">WHY</p>
-  <h2>当たっていないのではなく、<br><span class="em">“ずれたまま”</span>進んでいたのかも。</h2>
+<!-- ===== 3. 原因 ===== -->
+<section class="tone">
+  <div class="deco d-bl"><img src="flower.jpg" alt=""></div>
+  <p class="eyebrow"><span>WHY</span><i></i></p>
+  <h2 class="mincho">当たっていないのではなく、<br><span class="gold">“ずれたまま”</span>だったのかも。</h2>
   <p>23問の診断で出るのは、あくまで<b>傾向</b>です。</p>
   <p>人は無意識に、「こうありたい自分」で答えてしまいます。<br>
   これは意志が弱いとかではなくて、もう、そういうものなんです。</p>
@@ -267,15 +257,16 @@ footer a{color:#B9A79A;}
 
   <p>1と9では、しんどくなる場面も、効く声かけも、まるで違います。<br>
   ずれたまま対策すると、当然、効きません。</p>
-  <p class="big">合わない「がんばり方」を、<br>まじめに続けることになる。</p>
+  <p class="big mincho">合わない「がんばり方」を、<br>まじめに続けることになる。</p>
   <p>学んでも変われなかったのは、あなたの努力が足りなかったからじゃなくて、<br>
   そもそも地図がずれていた、ということがあるんです。</p>
 </section>
 
-<!-- ============ 4. 解決原理 ============ -->
+<!-- ===== 4. 解決 ===== -->
 <section>
-  <p class="eyebrow">HOW</p>
-  <h2>タイプは、診断ではなく<br><span class="em">“対話”</span>で見きわまる。</h2>
+  <div class="deco d-br"><img src="leaf.jpg" alt=""></div>
+  <p class="eyebrow"><span>HOW</span><i></i></p>
+  <h2 class="mincho">タイプは、診断ではなく<br><span class="gold">“対話”</span>で見きわまる。</h2>
   <p>やることは、そんなに複雑じゃありません。<br>
   あなたの過去の場面を、一緒にたどっていくだけです。</p>
   <ul class="checks">
@@ -288,33 +279,33 @@ footer a{color:#B9A79A;}
   そこが見えると、打つ手が変わります。</p>
 </section>
 
-<!-- ============ 5. 60分でやること ============ -->
-<section class="mist">
-  <p class="eyebrow">CONTENT</p>
-  <h2>この60分で、<br>3つだけやります。</h2>
-  <div class="steps">
-    <div class="stepcard">
-      <span class="num">01</span>
-      <h3>対話で、あなたのタイプを見きわめる</h3>
-      <p>診断結果は「たたき台」として使います。まだ受けていなくても大丈夫。その場で見ていきます。</p>
-    </div>
-    <div class="stepcard">
-      <span class="num">02</span>
-      <h3>いまの悩みを、タイプから整理する</h3>
-      <p>子育て・夫婦・仕事・人間関係。困っている場面をひとつ持ってきてください。性格の問題ではなく、仕組みとしてほどいていきます。</p>
-    </div>
-    <div class="stepcard">
-      <span class="num">03</span>
-      <h3>明日からの動き方を、ひとつだけ決める</h3>
-      <p>たくさんは決めません。ひとつだけです。「知って終わり」にしないための、いちばん大事なところ。</p>
-    </div>
+<!-- ===== 5. 内容 ===== -->
+<section class="tone">
+  <div class="deco d-tl"><img src="flower.jpg" alt=""></div>
+  <p class="eyebrow"><span>CONTENT</span><i></i></p>
+  <h2 class="mincho">この60分で、<br>3つだけやります。</h2>
+  <div class="stepcard">
+    <span class="num gold">O N E</span>
+    <h3 class="mincho">対話で、あなたのタイプを見きわめる</h3>
+    <p>診断結果は「たたき台」として使います。まだ受けていなくても大丈夫。その場で見ていきます。</p>
+  </div>
+  <div class="stepcard">
+    <span class="num gold">T W O</span>
+    <h3 class="mincho">いまの悩みを、タイプから整理する</h3>
+    <p>子育て・夫婦・仕事・人間関係。困っている場面をひとつ持ってきてください。性格の問題ではなく、仕組みとしてほどいていきます。</p>
+  </div>
+  <div class="stepcard">
+    <span class="num gold">T H R E E</span>
+    <h3 class="mincho">明日からの動き方を、ひとつだけ決める</h3>
+    <p>たくさんは決めません。ひとつだけです。「知って終わり」にしないための、いちばん大事なところ。</p>
   </div>
 </section>
 
-<!-- ============ 6. こんな人へ ============ -->
+<!-- ===== 6. こんな人へ ===== -->
 <section>
-  <p class="eyebrow">FOR YOU</p>
-  <h2>ひとつでも当てはまったら。</h2>
+  <div class="deco d-tr"><img src="leaf.jpg" alt=""></div>
+  <p class="eyebrow"><span>FOR YOU</span><i></i></p>
+  <h2 class="mincho">ひとつでも当てはまったら。</h2>
   <ul class="checks">
     <li>無料の「トリセツ診断」を受けて、もっと知りたくなった</li>
     <li>子育てがしんどくて、自分を責めてばかりいる</li>
@@ -325,11 +316,12 @@ footer a{color:#B9A79A;}
   <p class="cta-note">申し込みフォームは1分で終わります</p>
 </section>
 
-<!-- ============ 7. 受けたあと ============ -->
-<section class="mist">
-  <p class="eyebrow">AFTER</p>
-  <h2>帰り道、<br><span class="em">未来に希望がもてて</span>いますように。</h2>
-  <p class="big">「私はダメだ」ではなく、<br>「私は、こう扱えばうまくいくんだ」へ。</p>
+<!-- ===== 7. 受けたあと ===== -->
+<section class="tone">
+  <div class="deco d-bl"><img src="flower.jpg" alt=""></div>
+  <p class="eyebrow"><span>AFTER</span><i></i></p>
+  <h2 class="mincho">帰り道、<br><span class="gold">未来に希望がもてて</span>いますように。</h2>
+  <p class="big mincho">「私はダメだ」ではなく、<br>「私は、こう扱えばうまくいくんだ」へ。</p>
   <p>性格を直そうとしなくていいんです。</p>
   <p>扱い方さえわかれば、同じ性格のまま、明日がちょっとだけラクになります。<br>
   自分を責める時間が減って、その分を、大事な人に使えるようになる。</p>
@@ -337,10 +329,10 @@ footer a{color:#B9A79A;}
   そういう顔で帰ってほしくて、この60分を作りました。</p>
 </section>
 
-<!-- ============ 8. 当日の流れ ============ -->
+<!-- ===== 8. 流れ ===== -->
 <section>
-  <p class="eyebrow">FLOW</p>
-  <h2>準備は、いりません。</h2>
+  <p class="eyebrow"><span>FLOW</span><i></i></p>
+  <h2 class="mincho">準備は、いりません。</h2>
   <ul class="flow">
     <li>予約ページで、空いている日時を選んでお申し込み</li>
     <li>届いたメールから、PayPalでお支払い（カードOK）</li>
@@ -354,12 +346,13 @@ footer a{color:#B9A79A;}
   </div>
 </section>
 
-<!-- ============ 9. 話す人 ============ -->
-<section class="mist">
-  <p class="eyebrow">PROFILE</p>
+<!-- ===== 9. 話す人 ===== -->
+<section class="tone">
+  <div class="deco d-br"><img src="leaf.jpg" alt=""></div>
+  <p class="eyebrow"><span>PROFILE</span><i></i></p>
   <div class="profile">
-    <img src="satchan.jpg" alt="公認心理師 さっちゃん" width="453" height="800">
-    <p class="name">さっちゃん</p>
+    <div class="pframe"><img src="satchan.jpg" alt="公認心理師 さっちゃん"></div>
+    <p class="name mincho">さっちゃん</p>
     <p class="role">公認心理師 ｜ 3児の母</p>
     <p>心の国家資格である公認心理師です。個別セッションは350回以上、特別支援教育の現場では10年以上、子どもと家族に向き合ってきました。</p>
     <p>私自身も、3人の子どもを育てるママです。</p>
@@ -367,11 +360,10 @@ footer a{color:#B9A79A;}
   </div>
 </section>
 
-<!-- ============ 10. FAQ ============ -->
+<!-- ===== 10. FAQ ===== -->
 <section>
-  <p class="eyebrow">Q &amp; A</p>
-  <h2>気になることに、<br>お答えします。</h2>
-
+  <p class="eyebrow"><span>Q &amp; A</span><i></i></p>
+  <h2 class="mincho">気になることに、<br>お答えします。</h2>
   <details>
     <summary>エニアグラムを、まったく知りません。</summary>
     <div class="body">大丈夫です。専門用語は使いません。「知識を学ぶ時間」ではなく「あなたのことを一緒に見ていく時間」なので、予習もいりません。</div>
@@ -402,23 +394,24 @@ footer a{color:#B9A79A;}
   </details>
 </section>
 
-<!-- ============ 11. 料金 ============ -->
-<section class="mist" id="price">
-  <p class="eyebrow">PRICE</p>
-  <h2>お申し込み</h2>
-  <div class="price">
+<!-- ===== 11. 料金 ===== -->
+<section class="tone" id="price">
+  <div class="deco d-tl"><img src="flower.jpg" alt=""></div>
+  <p class="eyebrow"><span>PRICE</span><i></i></p>
+  <h2 class="mincho">お申し込み</h2>
+  <div class="price"><div class="in">
     <p class="ttl">エニアグラムセッション</p>
     <p class="yen">7,700<small>円（税込）</small></p>
     <p class="spec">60分／オンライン（Zoom）<br>お支払いはPayPal（クレジットカードOK）</p>
-  </div>
+  </div></div>
   <a class="cta" href="apply/">日時を選んで申し込む<span class="mini">空いている時間がその場でわかります</span></a>
   <p class="cta-note">お支払いの確認をもって、ご予約が確定します<br>前日までの日程変更は無料です</p>
 </section>
 
-<!-- ============ 12. その先 ============ -->
+<!-- ===== 12. その先 ===== -->
 <section>
-  <p class="eyebrow">NEXT</p>
-  <h2>もっと深くやりたく<br>なったときは。</h2>
+  <p class="eyebrow"><span>NEXT</span><i></i></p>
+  <h2 class="mincho">もっと深くやりたく<br>なったときは。</h2>
   <p>この60分でやるのは、タイプを見きわめて、明日の一歩を決めるところまでです。</p>
   <p>「家族のことも含めて、じっくり整えたい」<br>
   そう思ったときのために、3ヶ月の個別プログラムも用意しています。</p>
@@ -426,11 +419,11 @@ footer a{color:#B9A79A;}
   こちらから無理におすすめすることはありませんので、安心して来てくださいね。</p>
 </section>
 
-<!-- ============ 最終CTA ============ -->
+<!-- ===== 最終CTA ===== -->
 <div class="closing">
-  <h2>自分を責める時間を、<br>すこし減らしませんか。</h2>
-  <p>60分あれば、地図は引き直せます。<br>
-  まとまらないまま、来てください。</p>
+  <h2 class="mincho">自分を責める時間を、<br>すこし減らしませんか。</h2>
+  <div class="rule"><i></i><b></b><i></i></div>
+  <p>60分あれば、地図は引き直せます。<br>まとまらないまま、来てください。</p>
   <br>
   <a class="cta" href="apply/">日時を選んで申し込む<span class="mini">オンライン・60分 7,700円（税込）</span></a>
   <p class="cta-note">空いている時間がその場でわかります</p>
@@ -443,7 +436,6 @@ footer a{color:#B9A79A;}
 
 </div>
 
-<!-- ============ 追従バー ============ -->
 <div class="bar">
   <div class="inner">
     <div class="info"><b>7,700円</b><span>60分・オンライン</span></div>
