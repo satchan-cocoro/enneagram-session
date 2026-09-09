@@ -1,0 +1,5 @@
+# 秘密情報。GitHubには絶対に上げない
+secrets.local.md
+*.local.md
+.env
+.DS_Store

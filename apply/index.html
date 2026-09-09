@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エニアグラムセッション お申し込み｜あんだんて</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="エニアグラムセッションのお申し込みページです。空いている日時を選んでお申し込みいただけます。">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FDF8F2; --rose:#E8956D; --deep-rose:#C96A45; --charcoal:#2D2D2D;
+    --mid-gray:#6B6B6B; --light-gray:#F0EBE3; --blush:#F4C5B0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans JP',sans-serif;background:var(--cream);color:var(--charcoal);
+       line-height:1.85;font-size:15px;-webkit-text-size-adjust:100%;}
+  .wrap{max-width:600px;margin:0 auto;padding:0 20px 80px;}
+
+  header{text-align:center;padding:36px 20px 24px;}
+  header .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--rose);font-weight:500;}
+  header h1{font-family:'Noto Serif JP',serif;font-size:24px;margin-top:8px;line-height:1.5;}
+  .meta{display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .meta span{background:#fff;border:1px solid var(--light-gray);border-radius:999px;
+             padding:6px 16px;font-size:13px;color:var(--mid-gray);}
+  .meta span b{color:var(--charcoal);font-weight:700;}
+
+  .steps{display:flex;gap:6px;margin:28px 0 22px;}
+  .steps div{flex:1;height:4px;border-radius:2px;background:var(--light-gray);transition:.3s;}
+  .steps div.on{background:var(--rose);}
+
+  .card{background:#fff;border:1px solid var(--light-gray);border-radius:18px;
+        padding:24px 20px;margin-bottom:18px;}
+  h2{font-family:'Noto Serif JP',serif;font-size:17px;margin-bottom:6px;}
+  .lead{font-size:13px;color:var(--mid-gray);margin-bottom:18px;}
+
+  .datebar{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:16px;
+           scrollbar-width:thin;-webkit-overflow-scrolling:touch;}
+  .datebtn{flex:0 0 auto;min-width:64px;padding:10px 6px;border:1.5px solid var(--light-gray);
+           background:#fff;border-radius:12px;text-align:center;cursor:pointer;font-family:inherit;
+           transition:.15s;}
+  .datebtn small{display:block;font-size:11px;color:var(--mid-gray);}
+  .datebtn b{display:block;font-size:17px;font-weight:700;line-height:1.4;}
+  .datebtn.sat b{color:#4A7FB5;} .datebtn.sun b{color:var(--deep-rose);}
+  .datebtn.on{border-color:var(--rose);background:#FFF6F0;}
+
+  .times{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;}
+  .timebtn{padding:12px 4px;border:1.5px solid var(--light-gray);background:#fff;border-radius:12px;
+           font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;color:var(--charcoal);
+           transition:.15s;}
+  .timebtn:hover{border-color:var(--blush);}
+  .timebtn.on{border-color:var(--rose);background:var(--rose);color:#fff;}
+
+  label{display:block;font-size:13px;font-weight:500;margin:16px 0 6px;}
+  label .req{color:var(--deep-rose);font-size:11px;margin-left:6px;}
+  label .opt{color:var(--mid-gray);font-size:11px;margin-left:6px;font-weight:400;}
+  .note{font-size:12px;color:var(--mid-gray);font-weight:400;margin-top:-2px;margin-bottom:6px;}
+  input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid var(--light-gray);
+    border-radius:11px;font-family:inherit;font-size:16px;background:#fff;color:var(--charcoal);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blush);}
+  textarea{min-height:110px;resize:vertical;line-height:1.7;}
+
+  .btn{display:block;width:100%;padding:16px;border:none;border-radius:999px;background:var(--rose);
+       color:#fff;font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;margin-top:22px;
+       transition:.2s;text-align:center;text-decoration:none;}
+  .btn:hover{background:var(--deep-rose);}
+  .btn:disabled{background:#DDD6CE;cursor:not-allowed;}
+  .btn.ghost{background:#fff;color:var(--mid-gray);border:1.5px solid var(--light-gray);
+             font-weight:500;font-size:14px;padding:12px;margin-top:12px;}
+  .btn.ghost:hover{background:var(--light-gray);color:var(--charcoal);}
+  .btn.pay{background:#0070BA;font-size:17px;}
+  .btn.pay:hover{background:#005A96;}
+
+  .summary{background:#FFF6F0;border-radius:14px;padding:18px;margin-bottom:4px;}
+  .summary dl{font-size:14px;}
+  .summary dt{color:var(--mid-gray);font-size:12px;margin-top:12px;letter-spacing:.02em;}
+  .summary dt:first-child{margin-top:0;}
+  .summary dd{font-weight:500;word-break:break-word;line-height:1.7;}
+  .summary .price{font-size:19px;font-weight:700;color:var(--deep-rose);}
+
+  .agree{display:flex;gap:10px;align-items:flex-start;margin-top:20px;font-size:13px;
+         line-height:1.7;cursor:pointer;}
+  .agree input{width:20px;height:20px;flex:0 0 auto;margin-top:2px;}
+  .agree a{color:var(--deep-rose);}
+
+  .policy{font-size:12px;color:var(--mid-gray);background:var(--light-gray);border-radius:12px;
+          padding:14px 16px;margin-top:18px;line-height:1.8;}
+  .policy b{color:var(--charcoal);}
+  .policy a{color:var(--deep-rose);}
+
+  .msg{border-radius:12px;padding:14px 16px;font-size:14px;margin-top:16px;line-height:1.75;}
+  .msg.err{background:#FDECE6;color:#A4442A;}
+  .msg.info{background:#EEF5F1;color:#2F6B54;}
+
+  .done{text-align:center;}
+  .done .mark{font-size:42px;}
+  .done h2{font-size:20px;margin:10px 0 6px;}
+  .done .when{font-size:16px;font-weight:700;margin-bottom:18px;}
+  .paybox{background:#FFF6F0;border-radius:14px;padding:20px 18px;text-align:center;margin-top:6px;}
+  .paybox .amount{font-family:'Noto Serif JP',serif;font-size:30px;font-weight:700;color:var(--deep-rose);
+                  line-height:1.3;}
+  .paybox .amount small{font-size:13px;font-weight:400;color:var(--mid-gray);}
+  .paybox .limit{font-size:13px;color:var(--mid-gray);margin-top:10px;}
+  .paybox .limit b{color:var(--charcoal);}
+  .steplist{text-align:left;font-size:13px;color:var(--mid-gray);margin-top:22px;line-height:1.9;}
+  .steplist b{color:var(--charcoal);}
+  .linebtn{display:inline-block;margin-top:20px;padding:13px 30px;background:#06C755;
+           color:#fff;border-radius:999px;text-decoration:none;font-weight:700;font-size:15px;}
+
+  .skeleton{height:46px;border-radius:12px;background:linear-gradient(90deg,#F5F0E9,#FBF7F2,#F5F0E9);
+            background-size:200% 100%;animation:sk 1.2s infinite;}
+  @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  footer{text-align:center;font-size:12px;color:var(--mid-gray);padding:10px 20px 40px;}
+  footer a{color:var(--mid-gray);}
+  .hide{display:none !important;}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">ANDANTE</p>
+  <h1 id="ttl">エニアグラムセッション</h1>
+  <div class="meta">
+    <span>所要時間 <b id="mDur">—</b></span>
+    <span>オンライン（Zoom）</span>
+    <span>受講料 <b id="mPrice">—</b></span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="steps">
+    <div id="s1" class="on"></div><div id="s2"></div><div id="s3"></div>
+  </div>
+
+  <!-- ============ STEP 1: 日時 ============ -->
+  <section id="step1" class="card">
+    <h2>1. 日時を選んでください</h2>
+    <p class="lead">表示されているのは、いま実際に空いている時間だけです（日本時間）。</p>
+    <div id="dates" class="datebar">
+      <div class="skeleton" style="flex:0 0 64px"></div>
+      <div class="skeleton" style="flex:0 0 64px"></div>
+      <div class="skeleton" style="flex:0 0 64px"></div>
+      <div class="skeleton" style="flex:0 0 64px"></div>
+    </div>
+    <div id="times" class="times"></div>
+    <div id="slotMsg"></div>
+  </section>
+
+  <!-- ============ STEP 2: 入力 ============ -->
+  <section id="step2" class="card hide">
+    <h2>2. お申し込み内容</h2>
+    <p class="lead" id="pickedLead"></p>
+
+    <label>お名前<span class="req">必須</span></label>
+    <input id="f_name" type="text" placeholder="髙橋 さつき" autocomplete="name">
+
+    <label>メールアドレス<span class="req">必須</span></label>
+    <div class="note">お支払いのご案内・当日のZoomリンクをここにお送りします</div>
+    <input id="f_email" type="email" placeholder="satsuki@example.com" autocomplete="email" inputmode="email">
+
+    <div id="qs"></div>
+
+    <button class="btn" id="toConfirm">確認へすすむ</button>
+    <button class="btn ghost" data-back="1">日時を選び直す</button>
+    <div id="formMsg"></div>
+  </section>
+
+  <!-- ============ STEP 3: 確認 ============ -->
+  <section id="step3" class="card hide">
+    <h2>3. 内容の確認</h2>
+    <p class="lead">この内容でお申し込みします。<b>お支払いの確認をもって、ご予約が確定します。</b></p>
+
+    <div class="summary">
+      <dl id="sum"></dl>
+    </div>
+
+    <div class="policy">
+      <b>お申し込みのながれ</b><br>
+      ① このページで申し込む（お席を仮でお取りします）<br>
+      ② 届いたメールのリンクからPayPalでお支払い<br>
+      ③ さっちゃんが入金を確認 → <b>Zoom URL入りの確定メール</b>が届きます<br>
+      <br>
+      <b>日程の変更・キャンセルについて</b><br>
+      ・<b>前日まで</b>のご連絡なら、日程の変更は無料で承ります（メールに返信するだけでOK）<br>
+      ・<b>3日前まで</b>のキャンセルは全額返金します<br>
+      ・<b>2日前〜前日</b>のキャンセルは50%の返金となります<br>
+      ・<b>当日のキャンセル・無断欠席および実施後</b>の返金はお受けできません<br>
+      詳しくは<a id="legalLink" href="../legal.html" target="_blank" rel="noopener">特定商取引法に基づく表記</a>をご確認ください。
+    </div>
+
+    <label class="agree">
+      <input type="checkbox" id="agree">
+      <span>上記の日程変更・キャンセルについて、および<a id="legalLink2" href="../legal.html" target="_blank" rel="noopener">特定商取引法に基づく表記</a>を読み、同意します</span>
+    </label>
+
+    <button class="btn" id="submitBtn">この内容で申し込む</button>
+    <button class="btn ghost" data-back="2">入力内容を直す</button>
+    <div id="payMsg"></div>
+  </section>
+
+  <!-- ============ 完了 ============ -->
+  <section id="step4" class="card hide">
+    <div class="done">
+      <div class="mark">♡</div>
+      <h2>お席をお取りしました！</h2>
+      <p class="when" id="doneWhen"></p>
+      <p style="font-size:14px;color:var(--mid-gray)">
+        つづけて、下のボタンからお支払いをお願いします。<br>
+        同じ内容のメールもお送りしています。
+      </p>
+
+      <div class="paybox">
+        <div class="amount" id="doneAmount">—<small>（税込）</small></div>
+        <a class="btn pay" id="payBtn" href="#" target="_blank" rel="noopener">PayPalでお支払いへ</a>
+        <p class="limit">お手続きの期限：<b id="doneDeadline">—</b><br>
+        <small>期限を過ぎると、いったん枠を他の方にお戻しします</small></p>
+      </div>
+
+      <div class="steplist">
+        <b>このあとの流れ</b><br>
+        1. 上のボタンからお支払い<br>
+        2. さっちゃんが入金を確認します（手で確認しているので少しお時間をいただきます）<br>
+        3. <b>Zoom URL入りの確定メール</b>が届いたら、ご予約完了です<br>
+        4. 前日にリマインドをお送りします
+      </div>
+
+      <p style="margin-top:18px;font-size:13px;color:var(--mid-gray)">
+        メールが届かないときは迷惑メールフォルダをご確認ください。<br>
+        それでも見つからないときは、公式LINEからひとこと教えてくださいね。
+      </p>
+      <a id="lineBtn" class="linebtn" href="#" target="_blank" rel="noopener">公式LINEをひらく</a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  あんだんて／髙橋さつき（公認心理師）<br>
+  <a id="legalLink3" href="../legal.html">特定商取引法・プライバシーポリシー</a>
+</footer>
+
+<script>
+/* =========================================================
+   ここだけ書き換える：GASをデプロイして出てきた /exec のURL
+   ========================================================= */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwIkp0d2L1W0BNilnNdWJIPYIylyg5YEdqcDI441WnePlP-HPuN6ffZBFqWIr0-bIfNeQ/exec';
+/* ========================================================= */
+
+const S = { conf:null, slots:[], byDate:{}, date:null, slot:null, form:{}, sending:false,
+            // 流入経路。?from=line のように付けたURLを配ると、そのまま記録されます
+            from: (new URLSearchParams(location.search).get('from') || '').slice(0,32) };
+const $ = function(id){ return document.getElementById(id); };
+
+function step(n){
+  [1,2,3,4].forEach(function(i){ $('step'+i).classList.toggle('hide', i!==n); });
+  $('s1').className = n>=1 ? 'on':'';
+  $('s2').className = n>=2 ? 'on':'';
+  $('s3').className = n>=3 ? 'on':'';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function msg(el, text, kind){
+  $(el).innerHTML = text ? '<div class="msg '+(kind||'err')+'">'+text+'</div>' : '';
+}
+
+function yen(n){ return Number(n).toLocaleString('ja-JP') + '円'; }
+
+function fmtLabel(iso){
+  const d = new Date(iso);
+  const w = ['日','月','火','水','木','金','土'][d.getDay()];
+  return (d.getMonth()+1)+'月'+d.getDate()+'日('+w+') '
+    + String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+'〜';
+}
+
+/* ---------- 起動 ---------- */
+(async function init(){
+  if (GAS_URL.indexOf('script.google.com') < 0){
+    msg('slotMsg','⚠ セットアップが未完了です（GAS_URL が未設定）。README の手順をご確認ください。');
+    $('dates').innerHTML=''; return;
+  }
+  try{
+    const conf = await api('config');
+    if(!conf.ok) throw new Error(conf.error);
+    S.conf = conf;
+    $('ttl').textContent   = conf.title;
+    document.title = conf.title + ' お申し込み｜あんだんて';
+    $('mDur').textContent  = conf.durationMin + '分';
+    $('mPrice').textContent = yen(conf.price) + '（税込）';
+    $('doneAmount').innerHTML = yen(conf.price) + '<small>（税込）</small>';
+    ['legalLink','legalLink2','legalLink3'].forEach(function(id){
+      if(conf.legalUrl) $(id).href = conf.legalUrl;
+    });
+    $('lineBtn').href = conf.lineUrl || '#';
+    renderQuestions(conf.questions || []);
+    await loadSlots();
+  }catch(err){
+    $('dates').innerHTML='';
+    msg('slotMsg','うまく読み込めませんでした。通信環境を確かめて、ページを再読み込みしてみてください。<br><small>'+err.message+'</small>');
+  }
+})();
+
+function api(action){
+  return fetch(GAS_URL + '?action=' + action).then(function(r){ return r.json(); });
+}
+
+/* ---------- 空き枠 ---------- */
+async function loadSlots(){
+  const res = await api('slots');
+  if(!res.ok) throw new Error(res.error);
+  S.slots = res.slots;
+  S.byDate = {};
+  S.slots.forEach(function(s){
+    (S.byDate[s.date] = S.byDate[s.date] || []).push(s);
+  });
+  renderDates();
+}
+
+function renderDates(){
+  const dates = Object.keys(S.byDate).sort();
+  const box = $('dates');
+  box.innerHTML = '';
+  if(!dates.length){
+    msg('slotMsg','いま公開している空き枠がありません。公式LINEからご相談いただければ、個別に日程を調整します。','info');
+    return;
+  }
+  dates.forEach(function(dstr){
+    const d = new Date(dstr + 'T00:00:00');
+    const w = ['日','月','火','水','木','金','土'][d.getDay()];
+    const b = document.createElement('button');
+    b.type='button';
+    b.className = 'datebtn' + (d.getDay()===6?' sat':'') + (d.getDay()===0?' sun':'');
+    b.innerHTML = '<small>'+(d.getMonth()+1)+'月</small><b>'+d.getDate()+'</b><small>'+w+'</small>';
+    b.onclick = function(){ selectDate(dstr); };
+    b.dataset.d = dstr;
+    box.appendChild(b);
+  });
+  selectDate(dates[0]);
+}
+
+function selectDate(dstr){
+  S.date = dstr; S.slot = null;
+  Array.prototype.forEach.call(document.querySelectorAll('.datebtn'), function(b){
+    b.classList.toggle('on', b.dataset.d === dstr);
+  });
+  const box = $('times');
+  box.innerHTML = '';
+  (S.byDate[dstr] || []).forEach(function(s){
+    const d = new Date(s.iso);
+    const b = document.createElement('button');
+    b.type='button'; b.className='timebtn';
+    b.textContent = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    b.onclick = function(){
+      S.slot = s;
+      Array.prototype.forEach.call(document.querySelectorAll('.timebtn'), function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      $('pickedLead').textContent = fmtLabel(s.iso) + ' で進めます';
+      setTimeout(function(){ step(2); }, 180);
+    };
+    box.appendChild(b);
+  });
+}
+
+/* ---------- 質問欄 ---------- */
+function renderQuestions(qs){
+  const box = $('qs');
+  box.innerHTML = '';
+  qs.forEach(function(q){
+    const l = document.createElement('label');
+    l.innerHTML = q.label + (q.required ? '<span class="req">必須</span>' : '<span class="opt">任意</span>');
+    box.appendChild(l);
+    if(q.note){
+      const n = document.createElement('div');
+      n.className='note'; n.textContent = q.note; box.appendChild(n);
+    }
+    let el;
+    if(q.type==='textarea'){ el = document.createElement('textarea'); }
+    else if(q.type==='select'){
+      el = document.createElement('select');
+      el.innerHTML = '<option value="">選んでください</option>' +
+        (q.options||[]).map(function(o){ return '<option>'+o+'</option>'; }).join('');
+    } else {
+      el = document.createElement('input');
+      el.type = q.type || 'text';
+    }
+    el.id = 'q_' + q.key;
+    box.appendChild(el);
+  });
+}
+
+/* ---------- 入力チェック ---------- */
+$('toConfirm').onclick = function(){
+  const name = $('f_name').value.trim();
+  const email = $('f_email').value.trim();
+  if(!name){ return msg('formMsg','お名前を入力してください'); }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ return msg('formMsg','メールアドレスの形式をご確認ください'); }
+
+  const answers = {};
+  const qs = S.conf.questions || [];
+  for(let i=0;i<qs.length;i++){
+    const v = ($('q_'+qs[i].key).value || '').trim();
+    if(qs[i].required && !v){ return msg('formMsg', qs[i].label + 'を入力してください'); }
+    answers[qs[i].key] = v;
+  }
+  msg('formMsg','');
+  S.form = { name:name, email:email, answers:answers };
+  renderSummary();
+  step(3);
+};
+
+Array.prototype.forEach.call(document.querySelectorAll('[data-back]'), function(b){
+  b.onclick = function(){ step(Number(b.dataset.back)); };
+});
+
+function renderSummary(){
+  const rows = [
+    ['日時', fmtLabel(S.slot.iso) + '（' + S.conf.durationMin + '分）'],
+    ['お名前', S.form.name + ' 様'],
+    ['メール', S.form.email],
+    ['場所', 'オンライン（Zoom・URLは確定メールで届きます）']
+  ];
+  (S.conf.questions||[]).forEach(function(q){
+    const v = S.form.answers[q.key];
+    if(v) rows.push([q.label, prettyValue(q.type, v)]);
+  });
+  let html = rows.map(function(r){
+    return '<dt>'+r[0]+'</dt><dd>'+escapeHtml(r[1])+'</dd>';
+  }).join('');
+  html += '<dt>受講料</dt><dd class="price">'+yen(S.conf.price)+'<span style="font-size:12px;font-weight:400;color:var(--mid-gray)">（税込・PayPal）</span></dd>';
+  $('sum').innerHTML = html;
+}
+
+function prettyValue(type, v){
+  if(type==='date'){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    if(m) return Number(m[1])+'年'+Number(m[2])+'月'+Number(m[3])+'日';
+  }
+  if(type==='time'){
+    const m = /^(\d{1,2}):(\d{2})$/.exec(v);
+    if(m) return Number(m[1])+'時'+m[2]+'分ごろ';
+  }
+  return v;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  }).replace(/\n/g,'<br>');
+}
+
+/* ---------- 申し込み送信 ---------- */
+$('submitBtn').onclick = function(){
+  if(S.sending) return;
+  if(!$('agree').checked){ return msg('payMsg','同意のチェックをお願いします'); }
+  msg('payMsg','');
+  S.sending = true;
+  const btn = $('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '送信しています…';
+
+  fetch(GAS_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'}, // GASはプリフライトを返せないのでtext/plainで送る
+    body: JSON.stringify({
+      action:'book',
+      slot: S.slot.iso,
+      name: S.form.name,
+      email: S.form.email,
+      answers: S.form.answers,
+      from: S.from
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    S.sending = false;
+    btn.disabled = false;
+    btn.textContent = 'この内容で申し込む';
+    if(res.ok){
+      $('doneWhen').textContent = res.when + '〜';
+      $('doneDeadline').textContent = res.deadline;
+      $('payBtn').href = res.paypalUrl;
+      $('doneAmount').innerHTML = yen(res.price) + '<small>（税込）</small>';
+      step(4);
+    }else{
+      msg('payMsg', res.error);
+      if(/埋まって/.test(res.error||'')){
+        setTimeout(function(){ location.reload(); }, 2500);
+      }
+    }
+  })
+  .catch(function(err){
+    S.sending = false;
+    btn.disabled = false;
+    btn.textContent = 'この内容で申し込む';
+    msg('payMsg','送信できませんでした。通信環境を確かめて、もう一度お試しください。<br><small>'+err.message+'</small>');
+  });
+};
+</script>
+</body>
+</html>
