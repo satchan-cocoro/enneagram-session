@@ -63,33 +63,74 @@ p:last-child{margin-bottom:0;}
 .rule b{width:9px;height:9px;border:1.3px solid var(--gold);transform:rotate(45deg);}
 
 /* ---- ヒーロー ---- */
-.hero{padding:52px 24px 54px;text-align:center;position:relative;overflow:hidden;
-      background:linear-gradient(178deg,#FBF8F3 0%,#F6F0E5 100%);}
-.hero .side{position:absolute;left:-58px;top:0;width:168px;height:100%;opacity:.32;
-  -webkit-mask-image:linear-gradient(90deg,#000 8%,transparent 86%);
-  mask-image:linear-gradient(90deg,#000 8%,transparent 86%);}
-.hero .side img{width:100%;height:100%;object-fit:cover;object-position:left top;}
-.hero .side.r{left:auto;right:-58px;transform:scaleX(-1);}
-.hero > *{position:relative;z-index:2;}
-.seal{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
-  width:104px;height:104px;border-radius:50%;background:var(--navy);color:#F3E7CC;
-  line-height:1.45;margin-bottom:22px;position:relative;
-  box-shadow:0 8px 22px rgba(27,58,95,.24);}
-.seal::after{content:'';position:absolute;inset:6px;border:1px solid rgba(227,201,143,.5);border-radius:50%;}
-.seal .a{font-size:12px;letter-spacing:.04em;}
-.seal .b{font-size:10px;color:#C4B08B;}
-.seal .c{font-size:15px;margin-top:1px;letter-spacing:.02em;}
-.hero h1{font-size:30px;font-weight:700;line-height:1.62;letter-spacing:.02em;
-         color:var(--navy);margin-bottom:20px;text-wrap:balance;}
-.hero .sub{font-size:14.5px;color:#544E45;line-height:2.05;margin-bottom:26px;}
-.chara{width:146px;height:146px;margin:0 auto 14px;border-radius:50%;position:relative;
-  padding:6px;background:linear-gradient(160deg,#F7F2E8,#EFE6D5);
-  box-shadow:0 8px 24px rgba(27,58,95,.13);}
-.chara::before{content:'';position:absolute;inset:0;border:1px solid var(--gold);border-radius:50%;}
-.chara .cut{width:100%;height:100%;border-radius:50%;overflow:hidden;position:relative;background:#F9F6F0;}
-.chara img{position:absolute;width:250px;left:-66px;top:-10px;display:block;}
-.hero .cap{font-size:11.5px;letter-spacing:.16em;color:var(--gold-dk);margin-bottom:16px;}
-.hero .spec{font-size:12.5px;color:var(--gray);margin-top:16px;letter-spacing:.02em;}
+.hero{padding:34px 22px 46px;text-align:center;position:relative;overflow:hidden;
+      background:linear-gradient(172deg,#FCFAF6 0%,#F7F2E8 48%,#F2EBDD 100%);}
+/* 左右に流す水彩 */
+.hero .wash{position:absolute;top:0;width:200px;height:100%;opacity:.72;z-index:0;
+  -webkit-mask-image:linear-gradient(90deg,#000 4%,rgba(0,0,0,.55) 52%,transparent 96%);
+  mask-image:linear-gradient(90deg,#000 4%,rgba(0,0,0,.55) 52%,transparent 96%);}
+.hero .wash img{width:100%;height:100%;object-fit:cover;object-position:left center;}
+.hero .wash.l{left:-64px;}
+.hero .wash.r{right:-64px;transform:scaleX(-1);}
+/* 四隅の葉 */
+.hero .corner{position:absolute;z-index:1;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 74%);
+  mask-image:radial-gradient(ellipse at center,#000 30%,transparent 74%);}
+.hero .corner img{width:100%;display:block;}
+.hero .c-tl{left:-40px;top:-30px;width:150px;opacity:.72;}
+.hero .c-tr{right:-38px;top:-16px;width:132px;opacity:.6;transform:scaleX(-1);}
+.hero .c-bl{left:-44px;bottom:-34px;width:158px;opacity:.62;}
+.hero > *:not(.wash):not(.corner):not(.seal){position:relative;z-index:3;}
+
+/* バッジ */
+.seal{position:absolute;right:14px;top:16px;z-index:4;width:88px;height:88px;border-radius:50%;
+  background:var(--navy);color:#F3E7CC;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;line-height:1.4;
+  box-shadow:0 6px 18px rgba(27,58,95,.26);}
+.seal::after{content:'';position:absolute;inset:5px;border:1px solid rgba(227,201,143,.55);border-radius:50%;}
+.seal .a{font-size:10.5px;letter-spacing:.02em;}
+.seal .b{font-size:8.5px;color:#C4B08B;}
+.seal .c{font-size:13px;margin-top:1px;font-family:'Shippori Mincho',serif;}
+
+/* 上のひとこと */
+.hero .kicker{display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:11.5px;color:var(--gray);letter-spacing:.03em;margin:6px 0 18px;padding-right:58px;}
+.hero .kicker i{height:1px;width:20px;background:var(--gold);flex:0 0 auto;}
+
+.hero h1{font-size:33px;font-weight:700;line-height:1.58;letter-spacing:.02em;
+         color:var(--navy);margin-bottom:14px;text-wrap:balance;}
+/* 見出し下の飾り */
+.orn{display:flex;align-items:center;justify-content:center;gap:11px;margin:0 0 18px;}
+.orn i{height:1px;width:60px;background:linear-gradient(90deg,rgba(201,169,97,0),var(--gold));}
+.orn i:last-child{transform:scaleX(-1);}
+.orn b{width:8px;height:8px;border:1.3px solid var(--gold);transform:rotate(45deg);}
+.orn s{width:5px;height:5px;background:var(--gold);border-radius:50%;text-decoration:none;}
+
+.hero .sub{font-size:14px;color:#524C43;line-height:2;margin-bottom:14px;}
+
+/* キャラクター */
+.charabox{width:244px;height:296px;overflow:hidden;margin:0 auto 6px;position:relative;
+  -webkit-mask-image:radial-gradient(ellipse 58% 58% at 50% 40%,#000 50%,rgba(0,0,0,.4) 74%,transparent 95%);
+  mask-image:radial-gradient(ellipse 58% 58% at 50% 40%,#000 50%,rgba(0,0,0,.4) 74%,transparent 95%);}
+.charabox img{width:100%;display:block;}
+
+/* 金枠の3点セット */
+.specbox{border:1px solid var(--gold);background:rgba(255,255,255,.5);
+  padding:16px 6px;display:flex;margin-bottom:22px;position:relative;}
+.specbox::before,.specbox::after{content:'';position:absolute;width:12px;height:12px;
+  border:1px solid var(--gold);}
+.specbox::before{left:-4px;top:-4px;border-right:none;border-bottom:none;}
+.specbox::after{right:-4px;bottom:-4px;border-left:none;border-top:none;}
+.specbox .it{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;
+  position:relative;padding:0 4px;}
+.specbox .it + .it::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:1px;
+  background:linear-gradient(180deg,rgba(201,169,97,0),var(--gold),rgba(201,169,97,0));}
+.specbox .ic{width:44px;height:44px;border-radius:50%;border:1px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.7);}
+.specbox .ic svg{width:22px;height:22px;stroke:var(--navy);fill:none;stroke-width:1.3;
+  stroke-linecap:round;stroke-linejoin:round;}
+.specbox .tx{font-size:12px;color:var(--navy);line-height:1.55;letter-spacing:.02em;
+  font-family:'Shippori Mincho',serif;}
 
 /* ---- CTA ---- */
 .cta{display:block;width:100%;max-width:400px;margin:0 auto;padding:18px 20px;
@@ -210,17 +251,38 @@ footer a{color:#A9998A;}
 
 <!-- ===== ヒーロー ===== -->
 <div class="hero">
-  <div class="side"><img src="deco-left.jpg" alt=""></div>
-  <div class="side r"><img src="deco-left.jpg" alt=""></div>
+  <div class="wash l"><img src="deco-left.jpg" alt=""></div>
+  <div class="wash r"><img src="deco-left.jpg" alt=""></div>
+  <div class="corner c-tl"><img src="leaf.jpg" alt=""></div>
+  <div class="corner c-tr"><img src="leaf.jpg" alt=""></div>
+  <div class="corner c-bl"><img src="flower.jpg" alt=""></div>
 
-  <div class="chara"><div class="cut"><img src="chara.jpg" alt=""></div></div>
-  <p class="cap">公認心理師がひらく 60分</p>
+  <div class="seal"><span class="a">公認心理師</span><span class="b">がひらく</span><span class="c">60分</span></div>
+
+  <p class="kicker"><i></i>診断だけでは、たどりつけない<i></i></p>
   <h1 class="mincho">その診断結果、<br>ほんとうに<br><span class="gold">「あなた」</span>ですか？</h1>
-  <div class="rule"><i></i><b></b><i></i></div>
-  <p class="sub">エニアグラムの9タイプ。<br>
-    診断で出た結果を、公認心理師と話しながら<br>「本当にそうか」を見きわめる時間です。</p>
+  <div class="orn"><i></i><s></s><b></b><s></s><i></i></div>
+  <p class="sub">診断で出た結果を、公認心理師と話しながら<br>「本当にそうか」を見きわめる60分です。</p>
+
+  <div class="charabox"><img src="chara.jpg" alt=""></div>
+
+  <div class="specbox">
+    <div class="it">
+      <span class="ic"><svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="13" rx="1.5"/><path d="M8 20h8M12 17v3"/><path d="M10.5 8.2v4.6l4-2.3z"/></svg></span>
+      <span class="tx">オンライン<br>60分</span>
+    </div>
+    <div class="it">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h9A2.5 2.5 0 0 1 17 6.5v5A2.5 2.5 0 0 1 14.5 14H8l-4 3.5v-3.7A2.5 2.5 0 0 1 3 11.5z"/><path d="M7 8h6M7 10.5h4"/></svg></span>
+      <span class="tx">対話で<br>見きわめる</span>
+    </div>
+    <div class="it">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7.2-4.6-8.9-9C1.7 8.4 3.6 5 6.9 5c2 0 3.4 1.1 4.2 2.3l.9 1.3.9-1.3C13.7 6.1 15.1 5 17.1 5c3.3 0 5.2 3.4 3.8 7-1.7 4.4-8.9 9-8.9 9z"/></svg></span>
+      <span class="tx">7,700円<br>（税込）</span>
+    </div>
+  </div>
+
   <a class="cta" href="apply/">日時を選んで申し込む<span class="mini">空いている時間がその場でわかります</span></a>
-  <p class="spec">オンライン（Zoom）／ 60分 7,700円（税込）</p>
+  <p class="spec">お支払いはPayPal（クレジットカードOK）</p>
 </div>
 
 <!-- ===== 2. お悩み ===== -->
