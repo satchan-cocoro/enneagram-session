@@ -19,11 +19,11 @@ const CONFIG = {
   // --- セッションの中身 ---
   TITLE: 'エニアグラムセッション',
   DURATION_MIN: 60,        // 所要時間（分）
-  PRICE: 7700,             // 税込価格（円）
+  PRICE: 7000,             // 税込価格（円）※10/15〜10/27はキャンペーン価格。10/28に7700へ戻す
 
   // --- お支払い ---
   // ★さっちゃんがPayPalで作った支払いURLをここに貼る（毎回これを案内します）
-  PAYPAL_URL: 'https://www.paypal.com/ncp/payment/GMXHDH8KTPRVJ',
+  PAYPAL_URL: 'https://www.paypal.com/ncp/payment/2FK5V8FZESQJW',  // キャンペーン7,000円。通常7,700円は GMXHDH8KTPRVJ
   PAYMENT_DEADLINE_DAYS: 3,   // 申込から何日以内に入金してもらうか
   BANK_INFO: '',              // 銀行振込も受けるなら口座を書く。空なら案内しない
 
