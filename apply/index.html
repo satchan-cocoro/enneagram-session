@@ -250,7 +250,9 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbwIkp0d2L1W0BNilnNdWJIP
 
 const S = { conf:null, slots:[], byDate:{}, date:null, slot:null, form:{}, sending:false,
             // 流入経路。?from=line のように付けたURLを配ると、そのまま記録されます
-            from: (new URLSearchParams(location.search).get('from') || '').slice(0,32) };
+            from: (new URLSearchParams(location.search).get('from') || '').slice(0,32),
+            // メニュー。?menu=zoom でZoom個別鑑定（90分）に切り替わる。付けなければエニアグラムセッション
+            menu: (new URLSearchParams(location.search).get('menu') || '').replace(/[^a-z0-9_-]/gi,'').slice(0,32) };
 const $ = function(id){ return document.getElementById(id); };
 
 function step(n){
@@ -302,7 +304,8 @@ function fmtLabel(iso){
 })();
 
 function api(action){
-  return fetch(GAS_URL + '?action=' + action).then(function(r){ return r.json(); });
+  return fetch(GAS_URL + '?action=' + action + (S.menu ? '&menu=' + encodeURIComponent(S.menu) : ''))
+    .then(function(r){ return r.json(); });
 }
 
 /* ---------- 空き枠 ---------- */
@@ -468,7 +471,8 @@ $('submitBtn').onclick = function(){
       name: S.form.name,
       email: S.form.email,
       answers: S.form.answers,
-      from: S.from
+      from: S.from,
+      menu: S.menu
     })
   })
   .then(function(r){ return r.json(); })

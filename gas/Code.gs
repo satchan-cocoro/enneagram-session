@@ -69,6 +69,67 @@ const QUESTIONS = [
 ];
 
 /**
+ * メニュー（予約ページのURLに ?menu=zoom を付けると切り替わる）
+ * 何も付けないと 'session'（エニアグラムセッション 60分・7,700円）になる。
+ * ここに書いていない項目は CONFIG の値を使う。
+ */
+const PREFS = ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県',
+  '埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県',
+  '静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県',
+  '岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県',
+  '大分県','宮崎県','鹿児島県','沖縄県'];
+
+const MENUS = {
+  session: {
+    TITLE: CONFIG.TITLE,
+    DURATION_MIN: CONFIG.DURATION_MIN,
+    PRICE: CONFIG.PRICE,
+    PAYPAL_URL: CONFIG.PAYPAL_URL,
+    LEGAL_URL: CONFIG.LEGAL_URL,
+    QUESTIONS: QUESTIONS
+  },
+  zoom: {
+    TITLE: 'Zoom個別鑑定（四柱推命＋エニアグラム）',
+    DURATION_MIN: 90,
+    PRICE: 11000,
+    // 鑑定書を先に作る時間がいるので、セッションより先の日からしか選べないようにする
+    LEAD_TIME_HOURS: 14 * 24,   // 何時間先から予約できるか（14日）
+    MAX_DAYS_AHEAD: 45,         // 何日先まで予約できるか
+    // ★新しく作った 11,000円のPayPal支払いURLをここに貼る
+    PAYPAL_URL: 'https://www.paypal.com/ncp/payment/XZYU9PB3EQBYJ',
+    LEGAL_URL: CONFIG.LEGAL_URL,
+    QUESTIONS: [
+      { key: 'birthday', label: '生年月日', type: 'date', required: true },
+      { key: 'birthtime', label: '生まれた時間', type: 'time', required: false,
+        note: 'わかる範囲で大丈夫です。わからないときは空欄のままでOK' },
+      { key: 'birthpref', label: '生まれた都道府県', type: 'select', required: true,
+        options: PREFS, note: '海外で生まれた方は、いまは受付していません' },
+      { key: 'gender', label: '性別', type: 'select', required: true,
+        options: ['女性', '男性'], note: '運気の流れの計算に使います' },
+      { key: 'topic', label: '知りたいこと・今のお悩み', type: 'textarea', required: true,
+        note: 'ざっくりで大丈夫！ここを先に読んで、鑑定書を作ります' },
+      { key: 'known', label: 'さっちゃんを知ったきっかけ', type: 'select', required: false,
+        options: QUESTIONS[1].options }
+    ]
+  }
+};
+
+/** メニューを取り出す（知らない名前・空のときはエニアグラムセッション） */
+function menu_(key) {
+  const k = String(key || '').trim();
+  const m = MENUS[k] ? MENUS[k] : MENUS.session;
+  m.KEY = MENUS[k] ? k : 'session';
+  if (!m.LEAD_TIME_HOURS) m.LEAD_TIME_HOURS = CONFIG.LEAD_TIME_HOURS;
+  if (!m.MAX_DAYS_AHEAD) m.MAX_DAYS_AHEAD = CONFIG.MAX_DAYS_AHEAD;
+  return m;
+}
+
+/** 予約ログの1行から、そのメニューを取り出す（列が空の古い行はエニアグラムセッション） */
+function rowMenu_(r) {
+  return menu_(r.get('メニュー'));
+}
+
+/**
  * 流入経路の自動計測。
  * 予約ページのURLに ?from=line のように付けておくと、そのまま記録されます。
  * 例）公式LINEに貼るURL … https://satchan-cocoro.github.io/enneagram-session/?from=line
@@ -85,14 +146,15 @@ const FROM_LABELS = {
   substack:  'Substack',
   note:      'note',
   youtube:   'YouTube',
-  lp:        'LP・無料講座'
+  lp:        'LP・無料講座',
+  torisetsu: 'トリセツ鑑定LP'
 };
 
 const PROPS = PropertiesService.getScriptProperties();
 const SHEET_NAME = '予約ログ';
 const HEADERS = ['受付日時', '予約ID', 'お名前', 'メール', '日時', '終了', '金額',
                  '入金確認', 'ステータス', '支払期限', 'ZoomURL', 'カレンダーID',
-                 '催促送信', 'リマインド送信', '回答', '流入経路', '確定トークン'];
+                 '催促送信', 'リマインド送信', '回答', '流入経路', '確定トークン', 'メニュー'];
 const ST = { UNPAID: '入金待ち', DONE: '確定', CANCEL: 'キャンセル', EXPIRED: '期限切れ' };
 
 // ============================================================
@@ -102,8 +164,8 @@ function doGet(e) {
   try {
     const p = (e && e.parameter) || {};
     const action = p.action || 'config';
-    if (action === 'config')  return json_(getPublicConfig_());
-    if (action === 'slots')   return json_({ ok: true, slots: listOpenSlots_() });
+    if (action === 'config')  return json_(getPublicConfig_(menu_(p.menu)));
+    if (action === 'slots')   return json_({ ok: true, slots: listOpenSlots_(menu_(p.menu)) });
     // ↓ さっちゃんが通知メールからタップする用（ブラウザで開く）
     if (action === 'confirm') return html_(actConfirm_(p.t));
     if (action === 'release') return html_(actRelease_(p.t));
@@ -139,29 +201,31 @@ function doPost(e) {
   }
 }
 
-function getPublicConfig_() {
+function getPublicConfig_(m) {
   return {
     ok: true,
-    title: CONFIG.TITLE,
-    durationMin: CONFIG.DURATION_MIN,
-    price: CONFIG.PRICE,
-    paypalUrl: CONFIG.PAYPAL_URL,
+    menu: m.KEY,
+    title: m.TITLE,
+    durationMin: m.DURATION_MIN,
+    price: m.PRICE,
+    paypalUrl: m.PAYPAL_URL,
     deadlineDays: CONFIG.PAYMENT_DEADLINE_DAYS,
     bankInfo: CONFIG.BANK_INFO,
-    questions: QUESTIONS,
+    questions: m.QUESTIONS,
     lineUrl: CONFIG.LINE_URL,
-    legalUrl: CONFIG.LEGAL_URL
+    legalUrl: m.LEGAL_URL
   };
 }
 
 // ============================================================
 // 空き枠の計算
 // ============================================================
-function listOpenSlots_() {
+function listOpenSlots_(m) {
+  m = m || menu_('');
   const cal = getCalendar_();
   const now = new Date();
-  const start = new Date(now.getTime() + CONFIG.LEAD_TIME_HOURS * 3600 * 1000);
-  const end = new Date(now.getTime() + CONFIG.MAX_DAYS_AHEAD * 24 * 3600 * 1000);
+  const start = new Date(now.getTime() + m.LEAD_TIME_HOURS * 3600 * 1000);
+  const end = new Date(now.getTime() + m.MAX_DAYS_AHEAD * 24 * 3600 * 1000);
 
   // 既存の予定（仮押さえ分もカレンダーに入っているので、そのままブロックされる）
   const busy = cal.getEvents(
@@ -179,9 +243,9 @@ function listOpenSlots_() {
     for (let r = 0; r < ranges.length; r++) {
       const from = atTime_(cursor, ranges[r][0]);
       const to   = atTime_(cursor, ranges[r][1]);
-      for (let t = from.getTime(); t + CONFIG.DURATION_MIN * 60000 <= to.getTime();
+      for (let t = from.getTime(); t + m.DURATION_MIN * 60000 <= to.getTime();
            t += CONFIG.SLOT_STEP_MIN * 60000) {
-        const eMs = t + CONFIG.DURATION_MIN * 60000;
+        const eMs = t + m.DURATION_MIN * 60000;
         if (t < start.getTime()) continue;
         if (isBusy_(t, eMs, busy)) continue;
         out.push({
@@ -204,8 +268,8 @@ function isBusy_(startMs, endMs, busy) {
   return false;
 }
 
-function slotStillOpen_(startDate) {
-  const slots = listOpenSlots_();
+function slotStillOpen_(startDate, m) {
+  const slots = listOpenSlots_(m);
   const want = startDate.toISOString();
   for (let i = 0; i < slots.length; i++) if (slots[i].iso === want) return true;
   return false;
@@ -218,14 +282,18 @@ function book_(body) {
   const name  = String(body.name || '').trim();
   const email = String(body.email || '').trim();
   const slotIso = String(body.slot || '').trim();
+  const m = menu_(body.menu);
+  if (m.PAYPAL_URL.indexOf('paypal.com') < 0) {
+    return { ok: false, error: 'ただいま準備中です。もう少しお待ちください。' };
+  }
 
   if (!name)  return { ok: false, error: 'お名前を入力してください' };
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: 'メールアドレスの形式をご確認ください' };
   if (!slotIso) return { ok: false, error: '日時が選ばれていません' };
 
   const answers = body.answers || {};
-  for (let i = 0; i < QUESTIONS.length; i++) {
-    const q = QUESTIONS[i];
+  for (let i = 0; i < m.QUESTIONS.length; i++) {
+    const q = m.QUESTIONS[i];
     if (q.required && !String(answers[q.key] || '').trim()) {
       return { ok: false, error: q.label + 'を入力してください' };
     }
@@ -235,9 +303,9 @@ function book_(body) {
 
   const startAt = new Date(slotIso);
   if (isNaN(startAt.getTime())) return { ok: false, error: '日時の形式が正しくありません' };
-  const endAt = new Date(startAt.getTime() + CONFIG.DURATION_MIN * 60000);
+  const endAt = new Date(startAt.getTime() + m.DURATION_MIN * 60000);
 
-  if (!slotStillOpen_(startAt)) {
+  if (!slotStillOpen_(startAt, m)) {
     return { ok: false, error: 'ごめんなさい、たった今その枠が埋まってしまいました。別の日時を選び直してください。' };
   }
 
@@ -248,7 +316,7 @@ function book_(body) {
   // カレンダーに【仮】で入れる → この時点で他の人からは枠が消える
   let eventId = '';
   try {
-    eventId = createHoldEvent_(id, name, email, startAt, endAt, answers, deadline);
+    eventId = createHoldEvent_(m, id, name, email, startAt, endAt, answers, deadline);
   } catch (err) {
     logError_('calendar-hold', err, { id: id });
     return { ok: false, error: '受付処理でエラーが起きました。お手数ですが公式LINEからご連絡ください。' };
@@ -256,21 +324,21 @@ function book_(body) {
 
   appendLog_({
     id: id, token: token, name: name, email: email, startAt: startAt, endAt: endAt,
-    deadline: deadline, eventId: eventId, answers: answers, from: from
+    deadline: deadline, eventId: eventId, answers: answers, from: from, menu: m
   });
 
-  try { sendPaymentMail_(name, email, startAt, deadline, id); }
+  try { sendPaymentMail_(m, name, email, startAt, deadline, id); }
   catch (err) { logError_('mail-payment', err, { id: id }); }
-  try { sendAdminNewMail_(token, name, email, startAt, answers, deadline, from); }
+  try { sendAdminNewMail_(m, token, name, email, startAt, answers, deadline, from); }
   catch (err) { logError_('mail-admin', err, { id: id }); }
-  discordNew_(token, name, email, startAt, answers, deadline, from);
+  discordNew_(m, token, name, email, startAt, answers, deadline, from);
 
   return {
     ok: true,
     when: fmtDateTime_(startAt),
     deadline: fmtDateTime_(deadline),
-    paypalUrl: CONFIG.PAYPAL_URL,
-    price: CONFIG.PRICE
+    paypalUrl: m.PAYPAL_URL,
+    price: m.PRICE
   };
 }
 
@@ -330,10 +398,11 @@ function confirmBooking_(r) {
   const startAt = r.get('日時');
   const endAt = r.get('終了');
   const answers = safeParse_(r.get('回答'));
+  const m = rowMenu_(r);
 
   let zoomUrl = '', zoomPass = '';
   try {
-    const zm = zoomCreateMeeting_(name, startAt);
+    const zm = zoomCreateMeeting_(m, name, startAt);
     zoomUrl = zm.join_url;
     zoomPass = zm.password || '';
   } catch (err) {
@@ -344,9 +413,9 @@ function confirmBooking_(r) {
   try {
     const ev = getCalendar_().getEventById(r.get('カレンダーID'));
     if (ev) {
-      ev.setTitle(CONFIG.TITLE + '／' + name + '様');
-      ev.setDescription(eventBody_(r.get('予約ID'), name, email, answers,
-        '入金確認済み（' + yen_(CONFIG.PRICE) + '）', zoomUrl));
+      ev.setTitle(m.TITLE + '／' + name + '様');
+      ev.setDescription(eventBody_(m, r.get('予約ID'), name, email, answers,
+        '入金確認済み（' + yen_(m.PRICE) + '）', zoomUrl));
       try { ev.addEmailReminder(60); } catch (e) {}
     }
   } catch (err) {
@@ -357,10 +426,10 @@ function confirmBooking_(r) {
   r.set('入金確認', true);
   r.set('ZoomURL', zoomUrl);
 
-  try { sendConfirmMail_(name, email, startAt, zoomUrl, zoomPass); }
+  try { sendConfirmMail_(m, name, email, startAt, zoomUrl, zoomPass); }
   catch (err) { logError_('mail-confirm', err, { id: r.get('予約ID') }); }
 
-  discordConfirmed_(name, startAt, zoomUrl);
+  discordConfirmed_(m, name, startAt, zoomUrl);
   return { zoomUrl: zoomUrl };
 }
 
@@ -404,10 +473,11 @@ function expireUnpaid_() {
     if (dl.getTime() >= Date.now()) return;
 
     releaseRow_(r, ST.EXPIRED);
+    const m = rowMenu_(r);
     try {
       MailApp.sendEmail({
         to: r.get('メール'),
-        subject: '【期限切れ】' + CONFIG.TITLE + 'の仮のお席について',
+        subject: '【期限切れ】' + m.TITLE + 'の仮のお席について',
         name: CONFIG.FROM_NAME,
         replyTo: CONFIG.ADMIN_EMAIL,
         body: [
@@ -434,7 +504,7 @@ function expireUnpaid_() {
       });
     } catch (err) {}
 
-    discordExpired_(r.get('お名前'), r.get('日時'));
+    discordExpired_(m, r.get('お名前'), r.get('日時'));
   });
 }
 
@@ -447,11 +517,12 @@ function sendPaymentNudge_() {
     const dl = r.get('支払期限');
     if (!(dl instanceof Date)) return;
     if (Utilities.formatDate(dl, CONFIG.TZ, 'yyyy-MM-dd') !== tomorrow) return;
+    const m = rowMenu_(r);
 
     try {
       MailApp.sendEmail({
         to: r.get('メール'),
-        subject: '【あと1日】' + CONFIG.TITLE + 'のお支払いについて',
+        subject: '【あと1日】' + m.TITLE + 'のお支払いについて',
         name: CONFIG.FROM_NAME,
         replyTo: CONFIG.ADMIN_EMAIL,
         body: [
@@ -463,8 +534,8 @@ function sendPaymentNudge_() {
           'お支払いの確認がまだ取れていないので、念のためのお知らせです。',
           '',
           '──────────────',
-          '■ 金額：' + yen_(CONFIG.PRICE) + '（税込）',
-          '■ お支払い：' + CONFIG.PAYPAL_URL,
+          '■ 金額：' + yen_(m.PRICE) + '（税込）',
+          '■ お支払い：' + m.PAYPAL_URL,
           '■ お手続き期限：' + fmtDateTime_(dl),
           '──────────────',
           '',
@@ -492,11 +563,12 @@ function sendReminders() {
     const startAt = r.get('日時');
     if (!(startAt instanceof Date)) return;
     if (Utilities.formatDate(startAt, CONFIG.TZ, 'yyyy-MM-dd') !== target) return;
+    const m = rowMenu_(r);
 
     try {
       MailApp.sendEmail({
         to: r.get('メール'),
-        subject: '【明日です】' + CONFIG.TITLE + '／' + fmtDateShort_(startAt),
+        subject: '【明日です】' + m.TITLE + '／' + fmtDateShort_(startAt),
         name: CONFIG.FROM_NAME,
         replyTo: CONFIG.ADMIN_EMAIL,
         body: [
@@ -506,8 +578,8 @@ function sendReminders() {
           'いよいよ明日ですね。楽しみにしています♡',
           '',
           '──────────────',
-          '■ ' + CONFIG.TITLE,
-          '■ 日時：' + fmtDateTime_(startAt) + '（' + CONFIG.DURATION_MIN + '分）',
+          '■ ' + m.TITLE,
+          '■ 日時：' + fmtDateTime_(startAt) + '（' + m.DURATION_MIN + '分）',
           '■ 参加URL：' + (r.get('ZoomURL') || '別途お送りします'),
           '──────────────',
           '',
@@ -531,7 +603,7 @@ function sendReminders() {
 // ============================================================
 // メール文面
 // ============================================================
-function sendPaymentMail_(name, email, startAt, deadline, id) {
+function sendPaymentMail_(m, name, email, startAt, deadline, id) {
   const body = [
     name + '様',
     '',
@@ -542,13 +614,13 @@ function sendPaymentMail_(name, email, startAt, deadline, id) {
     '**お支払いの確認をもって、ご予約が確定します。**',
     '',
     '──────────────',
-    '■ ' + CONFIG.TITLE,
-    '■ 日時：' + fmtDateTime_(startAt) + '（' + CONFIG.DURATION_MIN + '分）',
-    '■ 受講料：' + yen_(CONFIG.PRICE) + '（税込）',
+    '■ ' + m.TITLE,
+    '■ 日時：' + fmtDateTime_(startAt) + '（' + m.DURATION_MIN + '分）',
+    '■ 受講料：' + yen_(m.PRICE) + '（税込）',
     '──────────────',
     '',
     '【お支払いはこちらから】',
-    CONFIG.PAYPAL_URL,
+    m.PAYPAL_URL,
     '',
     CONFIG.BANK_INFO ? ('【銀行振込をご希望の場合】\n' + CONFIG.BANK_INFO + '\n') : '',
     'お手続きの期限：' + fmtDateTime_(deadline),
@@ -566,19 +638,19 @@ function sendPaymentMail_(name, email, startAt, deadline, id) {
     CONFIG.FROM_NAME,
     CONFIG.ADMIN_EMAIL,
     '受付番号：' + id,
-    '特定商取引法に基づく表記：' + CONFIG.LEGAL_URL
+    '特定商取引法に基づく表記：' + m.LEGAL_URL
   ].filter(function (v) { return v !== ''; }).join('\n');
 
   MailApp.sendEmail({
     to: email,
-    subject: '【お支払いのご案内】' + CONFIG.TITLE + '／' + fmtDateShort_(startAt),
+    subject: '【お支払いのご案内】' + m.TITLE + '／' + fmtDateShort_(startAt),
     body: body,
     name: CONFIG.FROM_NAME,
     replyTo: CONFIG.ADMIN_EMAIL
   });
 }
 
-function sendConfirmMail_(name, email, startAt, zoomUrl, zoomPass) {
+function sendConfirmMail_(m, name, email, startAt, zoomUrl, zoomPass) {
   const body = [
     name + '様',
     '',
@@ -586,8 +658,8 @@ function sendConfirmMail_(name, email, startAt, zoomUrl, zoomPass) {
     'ご予約が確定しました♡',
     '',
     '──────────────',
-    '■ ' + CONFIG.TITLE,
-    '■ 日時：' + fmtDateTime_(startAt) + '（' + CONFIG.DURATION_MIN + '分）',
+    '■ ' + m.TITLE,
+    '■ 日時：' + fmtDateTime_(startAt) + '（' + m.DURATION_MIN + '分）',
     '■ 参加URL：' + (zoomUrl || '準備でき次第、改めてお送りします'),
     zoomPass ? ('■ パスコード：' + zoomPass) : '',
     '──────────────',
@@ -609,22 +681,23 @@ function sendConfirmMail_(name, email, startAt, zoomUrl, zoomPass) {
 
   MailApp.sendEmail({
     to: email,
-    subject: '【ご予約確定】' + CONFIG.TITLE + '／' + fmtDateShort_(startAt),
+    subject: '【ご予約確定】' + m.TITLE + '／' + fmtDateShort_(startAt),
     body: body,
     name: CONFIG.FROM_NAME,
     replyTo: CONFIG.ADMIN_EMAIL
   });
 }
 
-function sendAdminNewMail_(token, name, email, startAt, answers, deadline, from) {
+function sendAdminNewMail_(m, token, name, email, startAt, answers, deadline, from) {
   const base = webAppUrl_();
   const lines = [
     '新しいお申し込みが入りました（まだ入金待ちです）。',
     '',
-    '日時: ' + fmtDateTime_(startAt),
+    'メニュー: ' + m.TITLE,
+    '日時: ' + fmtDateTime_(startAt) + '（' + m.DURATION_MIN + '分）',
     '名前: ' + name,
     'メール: ' + email,
-    '金額: ' + yen_(CONFIG.PRICE),
+    '金額: ' + yen_(m.PRICE),
     '支払期限: ' + fmtDateTime_(deadline),
     '',
     '━━━━━━━━━━━━━━━━━━',
@@ -639,13 +712,13 @@ function sendAdminNewMail_(token, name, email, startAt, answers, deadline, from)
     '━━━━━━━━━━━━━━━━━━',
     ''
   ];
-  QUESTIONS.forEach(function (q) {
+  m.QUESTIONS.forEach(function (q) {
     lines.push('【' + q.label + '】' + (prettyAnswer_(q, answers) || '—'));
   });
   if (fromLabel_(from)) lines.push('【どこから来たか】' + fromLabel_(from));
   MailApp.sendEmail({
     to: CONFIG.ADMIN_EMAIL,
-    subject: '[入金待ち] ' + name + '様 ' + fmtDateShort_(startAt),
+    subject: '[入金待ち] ' + (m.KEY === 'session' ? '' : '【' + m.TITLE + '】') + name + '様 ' + fmtDateShort_(startAt),
     body: lines.filter(function (v) { return v !== ''; }).join('\n')
   });
 }
@@ -697,7 +770,7 @@ function fld_(name, value, inline) {
 }
 
 /** 新しい申込が入ったとき（入金待ち） */
-function discordNew_(token, name, email, startAt, answers, deadline, from) {
+function discordNew_(m, token, name, email, startAt, answers, deadline, from) {
   const base = webAppUrl_();
   const links = base
     ? ('**[✅ 入金を確認した（確定する）](' + base + '?action=confirm&t=' + token + ')**\n' +
@@ -705,13 +778,14 @@ function discordNew_(token, name, email, startAt, answers, deadline, from) {
     : '⚠ ウェブアプリURLが未登録です（`setUpWebAppUrl` を実行してください）';
 
   const fields = [
-    fld_('日時', fmtDateTime_(startAt), true),
-    fld_('金額', yen_(CONFIG.PRICE), true),
+    fld_('メニュー', m.TITLE, false),
+    fld_('日時', fmtDateTime_(startAt) + '（' + m.DURATION_MIN + '分）', true),
+    fld_('金額', yen_(m.PRICE), true),
     fld_('お名前', name + ' 様', true),
     fld_('メール', email, true),
     fld_('支払期限', fmtDateTime_(deadline), false)
   ];
-  QUESTIONS.forEach(function (q) {
+  m.QUESTIONS.forEach(function (q) {
     const v = prettyAnswer_(q, answers);
     if (v) fields.push(fld_(q.label, v, false));
   });
@@ -723,16 +797,17 @@ function discordNew_(token, name, email, startAt, answers, deadline, from) {
     description: 'PayPalに入金が入っていたら、下のリンクをタップするだけで確定できます。',
     color: 0xE8956D,
     fields: fields,
-    footer: { text: CONFIG.TITLE }
+    footer: { text: m.TITLE }
   });
 }
 
 /** 確定したとき */
-function discordConfirmed_(name, startAt, zoomUrl) {
+function discordConfirmed_(m, name, startAt, zoomUrl) {
   notifyDiscord_({
     title: '✅ 予約が確定しました',
     color: 0x3E8E6E,
     fields: [
+      fld_('メニュー', m.TITLE, false),
       fld_('日時', fmtDateTime_(startAt), true),
       fld_('お名前', name + ' 様', true),
       fld_('Zoom', zoomUrl || '⚠ 発行に失敗。手動でURLを作って送ってください', false)
@@ -742,11 +817,12 @@ function discordConfirmed_(name, startAt, zoomUrl) {
 }
 
 /** 期限切れで枠を戻したとき */
-function discordExpired_(name, startAt) {
+function discordExpired_(m, name, startAt) {
   notifyDiscord_({
     title: '⏰ 入金がなかったので枠を戻しました',
     color: 0x9E9E9E,
     fields: [
+      fld_('メニュー', m.TITLE, false),
       fld_('日時', fmtDateTime_(startAt), true),
       fld_('お名前', name + ' 様', true)
     ],
@@ -773,18 +849,18 @@ function zoomToken_() {
   return data.access_token;
 }
 
-function zoomCreateMeeting_(name, startAt) {
+function zoomCreateMeeting_(m, name, startAt) {
   const token = zoomToken_();
   const res = UrlFetchApp.fetch('https://api.zoom.us/v2/users/me/meetings', {
     method: 'post',
     contentType: 'application/json',
     headers: { Authorization: 'Bearer ' + token },
     payload: JSON.stringify({
-      topic: CONFIG.TITLE + '（' + name + '様）',
+      topic: m.TITLE + '（' + name + '様）',
       type: 2,
       start_time: Utilities.formatDate(startAt, CONFIG.TZ, "yyyy-MM-dd'T'HH:mm:ss"),
       timezone: CONFIG.TZ,
-      duration: CONFIG.DURATION_MIN,
+      duration: m.DURATION_MIN,
       settings: { waiting_room: true, join_before_host: false, auto_recording: 'none' }
     }),
     muteHttpExceptions: true
@@ -805,19 +881,19 @@ function getCalendar_() {
   return cal;
 }
 
-function createHoldEvent_(id, name, email, startAt, endAt, answers, deadline) {
+function createHoldEvent_(m, id, name, email, startAt, endAt, answers, deadline) {
   const ev = getCalendar_().createEvent(
-    '【仮】' + CONFIG.TITLE + '／' + name + '様',
+    '【仮】' + m.TITLE + '／' + name + '様',
     startAt, endAt,
-    { description: eventBody_(id, name, email, answers,
+    { description: eventBody_(m, id, name, email, answers,
         '⚠ 入金待ち（期限 ' + fmtDateTime_(deadline) + '）', '') }
   );
   return ev.getId();
 }
 
-function eventBody_(id, name, email, answers, payLine, zoomUrl) {
+function eventBody_(m, id, name, email, answers, payLine, zoomUrl) {
   const lines = [
-    '■ ' + CONFIG.TITLE,
+    '■ ' + m.TITLE,
     'お名前: ' + name,
     'メール: ' + email,
     'お支払い: ' + payLine,
@@ -825,7 +901,7 @@ function eventBody_(id, name, email, answers, payLine, zoomUrl) {
     '受付番号: ' + id,
     ''
   ];
-  QUESTIONS.forEach(function (q) {
+  m.QUESTIONS.forEach(function (q) {
     lines.push(q.label + ': ' + (prettyAnswer_(q, answers) || '—'));
   });
   return lines.filter(function (v) { return v !== ''; }).join('\n');
@@ -850,6 +926,10 @@ function getSheet_() {
     sh.setFrozenRows(1);
     sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
     sh.setColumnWidth(HEADERS.indexOf('回答') + 1, 320);
+  }
+  // 後から足した列（メニューなど）が、前からあるシートに無ければ見出しを足す
+  if (sh.getLastColumn() < HEADERS.length) {
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold');
   }
   return sh;
 }
@@ -894,7 +974,7 @@ function appendLog_(d) {
   row[HEADERS.indexOf('メール')] = d.email;
   row[HEADERS.indexOf('日時')] = d.startAt;
   row[HEADERS.indexOf('終了')] = d.endAt;
-  row[HEADERS.indexOf('金額')] = CONFIG.PRICE;
+  row[HEADERS.indexOf('金額')] = d.menu.PRICE;
   row[HEADERS.indexOf('入金確認')] = false;
   row[HEADERS.indexOf('ステータス')] = ST.UNPAID;
   row[HEADERS.indexOf('支払期限')] = d.deadline;
@@ -905,6 +985,7 @@ function appendLog_(d) {
   row[HEADERS.indexOf('回答')] = JSON.stringify(d.answers);
   row[HEADERS.indexOf('流入経路')] = d.from || '';
   row[HEADERS.indexOf('確定トークン')] = d.token;
+  row[HEADERS.indexOf('メニュー')] = d.menu.KEY;
   sh.appendRow(row);
   // 「入金確認」列をチェックボックスにする（メールのリンクを使わず、ここで確定してもOK）
   sh.getRange(sh.getLastRow(), HEADERS.indexOf('入金確認') + 1).insertCheckboxes();
@@ -1035,12 +1116,16 @@ function setUpTrigger() {
 
 /** 4) 動作確認用 */
 function testSetup() {
-  const slots = listOpenSlots_();
-  console.log('空き枠の数: ' + slots.length);
-  console.log('最初の5件: ' + slots.slice(0, 5).map(function (s) { return s.label; }).join(' / '));
+  Object.keys(MENUS).forEach(function (k) {
+    const m = menu_(k);
+    const slots = listOpenSlots_(m);
+    console.log('【' + m.TITLE + '】' + m.DURATION_MIN + '分・' + yen_(m.PRICE));
+    console.log('  空き枠の数: ' + slots.length);
+    console.log('  最初の5件: ' + slots.slice(0, 5).map(function (s) { return s.label; }).join(' / '));
+    console.log('  PayPal URL: ' + m.PAYPAL_URL);
+  });
   console.log('予約ログ: ' + getSheet_().getParent().getUrl());
   console.log('ウェブアプリURL: ' + (webAppUrl_() || '⚠ 未登録（setUpWebAppUrl を実行してください）'));
-  console.log('PayPal URL: ' + CONFIG.PAYPAL_URL);
   console.log('Discord通知: ' + (PROPS.getProperty('DISCORD_WEBHOOK_URL') ? 'ON' : 'OFF（未登録）'));
 }
 
@@ -1050,7 +1135,7 @@ function testDiscord() {
     console.log('⚠ DISCORD_WEBHOOK_URL が未登録です');
     return;
   }
-  discordNew_('TESTTOKEN', 'テスト 太郎', 'test@example.com',
+  discordNew_(menu_(''), 'TESTTOKEN', 'テスト 太郎', 'test@example.com',
     new Date(Date.now() + 3 * 24 * 3600 * 1000),
     { topic: 'これはテスト投稿です' },
     new Date(Date.now() + 24 * 3600 * 1000));
@@ -1059,6 +1144,6 @@ function testDiscord() {
 
 /** 6) Zoom連携だけを単体で確認する（テスト用ミーティングが1件できます） */
 function testZoom() {
-  const m = zoomCreateMeeting_('テスト', new Date(Date.now() + 3 * 24 * 3600 * 1000));
+  const m = zoomCreateMeeting_(menu_(''), 'テスト', new Date(Date.now() + 3 * 24 * 3600 * 1000));
   console.log('OK: ' + m.join_url);
 }
