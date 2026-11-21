@@ -183,6 +183,15 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: 'リクエストの形式が正しくありません' });
   }
+  if (body.action === 'kantei') {
+    // トリセツ鑑定書（5,500円）の申込。枠の取り合いがないので、ロックは書き込みのときだけ
+    try {
+      return json_(kantei_(body));
+    } catch (err) {
+      logError_('kantei', err, { name: body && body.name });
+      return json_({ ok: false, error: '送信でエラーが起きました。お手数ですが、少し時間をおいてもう一度お試しください。' });
+    }
+  }
   if (body.action !== 'book') return json_({ ok: false, error: 'unknown action' });
 
   const lock = LockService.getScriptLock();
@@ -1146,4 +1155,237 @@ function testDiscord() {
 function testZoom() {
   const m = zoomCreateMeeting_(menu_(''), 'テスト', new Date(Date.now() + 3 * 24 * 3600 * 1000));
   console.log('OK: ' + m.join_url);
+}
+
+
+// ============================================================
+// トリセツ鑑定書（5,500円）の申込フォーム
+// ページは torisetsu-lp/apply/。予約とは別の「鑑定申込」シートに記録する
+// ============================================================
+const KANTEI = {
+  TITLE: 'あなたのトリセツ鑑定書',
+  PRICE: 5500,              // 1人あたり（税込）
+  MAX_PEOPLE: 6,
+  SHEET_NAME: '鑑定申込',
+  LEGAL_URL: 'https://satchan-cocoro.github.io/gw-present/legal.html'
+};
+const KANTEI_HEADERS = ['受付日時', '受付番号', 'お申込者', 'メール', 'SNS', '人数', '内訳', '合計金額',
+                        'お支払い方法', '家族全員', 'ステータス', '申込内容', '流入経路', 'データ'];
+
+function kStr_(v, max) { return String(v == null ? '' : v).trim().slice(0, max || 200); }
+function kList_(v, max) {
+  return (Array.isArray(v) ? v : []).map(function (x) { return kStr_(x, 80); })
+    .filter(function (x) { return x; }).slice(0, max || 3);
+}
+
+function kantei_(body) {
+  const name = kStr_(body.name, 60);
+  const email = kStr_(body.email, 120);
+  if (!name) return { ok: false, error: 'お申込者さまのお名前を入力してください' };
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: 'メールアドレスの形式をご確認ください' };
+
+  const raw = Array.isArray(body.people) ? body.people : [];
+  if (!raw.length) return { ok: false, error: '鑑定を受ける方を入力してください' };
+  if (raw.length > KANTEI.MAX_PEOPLE) return { ok: false, error: '一度に申し込めるのは' + KANTEI.MAX_PEOPLE + '名までです' };
+
+  const people = [];
+  for (let i = 0; i < raw.length; i++) {
+    const r = raw[i] || {};
+    const p = {
+      kind: r.kind === '子ども' ? '子ども' : (r.kind === '大人' ? '大人' : ''),
+      name: kStr_(r.name, 60),
+      relation: kStr_(r.relation, 30),
+      gender: kStr_(r.gender, 20),
+      birthday: kStr_(r.birthday, 10),
+      birthtime: kStr_(r.birthtime, 5),
+      birthpref: kStr_(r.birthpref, 10),
+      state: kList_(r.state), future: kList_(r.future), want: kList_(r.want),
+      consult: kStr_(r.consult, 3000),
+      childWant: kList_(r.childWant), childWorry: kStr_(r.childWorry, 3000)
+    };
+    const who = (i + 1) + '人目の';
+    if (!p.kind) return { ok: false, error: who + '「大人・子ども」を選んでください' };
+    if (!p.name) return { ok: false, error: who + 'お名前を入力してください' };
+    if (!p.relation) return { ok: false, error: who + 'お申込者さまとの関係を選んでください' };
+    if (!p.gender) return { ok: false, error: who + '性別を選んでください' };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(p.birthday)) return { ok: false, error: who + '生年月日を入力してください' };
+    if (!p.birthpref) return { ok: false, error: who + '生まれた都道府県を選んでください' };
+    people.push(p);
+  }
+
+  const family = !!body.family && people.length >= 2;
+  const fam = family ? {
+    want: kList_(body.famWant, 9), pair: kStr_(body.famPair, 2000),
+    worry: kStr_(body.famWorry, 2000), future: kStr_(body.famFuture, 2000)
+  } : null;
+  const pay = kStr_(body.pay, 30);
+  if (!pay) return { ok: false, error: 'ご希望のお支払い方法を選んでください' };
+  if (!body.agree) return { ok: false, error: '確認事項のチェックをお願いします' };
+
+  const d = {
+    id: newId_().slice(0, 8).toUpperCase(),
+    name: name, email: email, sns: kStr_(body.sns, 120),
+    tone: kStr_(body.tone, 40), people: people, family: family, fam: fam, pay: pay,
+    from: cleanFrom_(body.from)
+  };
+  d.total = people.length * KANTEI.PRICE;
+  const adults = people.filter(function (p) { return p.kind === '大人'; }).length;
+  d.breakdown = '大人' + adults + '名・子ども' + (people.length - adults) + '名';
+  d.text = kanteiText_(d);
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = getKanteiSheet_();
+    sh.appendRow([new Date(), d.id, d.name, d.email, d.sns, people.length, d.breakdown, d.total,
+                  d.pay, family ? 'はい' : '', '未案内', d.text, d.from, JSON.stringify(d)]);
+  } finally {
+    lock.releaseLock();
+  }
+
+  try { kanteiCustomerMail_(d); } catch (err) { logError_('kantei-mail', err, { id: d.id }); }
+  try { kanteiAdminMail_(d); } catch (err) { logError_('kantei-admin', err, { id: d.id }); }
+  kanteiDiscord_(d);
+
+  return { ok: true, id: d.id, total: d.total, count: people.length };
+}
+
+function getKanteiSheet_() {
+  const ss = getSheet_().getParent();
+  let sh = ss.getSheetByName(KANTEI.SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(KANTEI.SHEET_NAME);
+    sh.appendRow(KANTEI_HEADERS);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, KANTEI_HEADERS.length).setFontWeight('bold');
+    sh.setColumnWidth(KANTEI_HEADERS.indexOf('申込内容') + 1, 420);
+  }
+  return sh;
+}
+
+function kDate_(v) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+  return m ? (Number(m[1]) + '年' + Number(m[2]) + '月' + Number(m[3]) + '日') : (v || '—');
+}
+function kTime_(v) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(v || '');
+  return m ? (Number(m[1]) + '時' + m[2] + '分') : 'わからない';
+}
+
+/** 申込内容を、人が読める文章にする（メール・シート共通） */
+function kanteiText_(d) {
+  const L = [];
+  L.push('■ お申込者：' + d.name + ' 様');
+  L.push('■ メール：' + d.email);
+  if (d.sns) L.push('■ SNS：' + d.sns);
+  L.push('■ 鑑定書の雰囲気：' + (d.tone || '—'));
+  L.push('■ 人数：' + d.people.length + '名（' + d.breakdown + '）');
+  L.push('■ 合計：' + yen_(d.total) + '（税込）');
+  L.push('■ ご希望のお支払い方法：' + d.pay);
+  d.people.forEach(function (p, i) {
+    L.push('');
+    L.push('━━ ' + (i + 1) + '人目：' + p.name + '（' + p.kind + '・' + p.relation + '）━━');
+    L.push('性別：' + p.gender);
+    L.push('生年月日：' + kDate_(p.birthday) + '　生まれた時間：' + kTime_(p.birthtime));
+    L.push('生まれた都道府県：' + p.birthpref);
+    if (p.kind === '大人') {
+      L.push('① 今の状態：' + (p.state.join('／') || '—'));
+      L.push('② なりたい自分：' + (p.future.join('／') || '—'));
+      L.push('③ 特に知りたいこと：' + (p.want.join('／') || '—'));
+      L.push('④ 相談したいこと：' + (p.consult || '—'));
+    } else {
+      L.push('❶ 特に知りたいこと：' + (p.childWant.join('／') || '—'));
+      L.push('❷ お子さまのことでのお悩み：' + (p.childWorry || '—'));
+    }
+  });
+  if (d.family && d.fam) {
+    L.push('');
+    L.push('━━ 家族全員でのお申込み（特典「わが家のトリセツ」）━━');
+    L.push('家族鑑定で知りたいこと：' + (d.fam.want.join('／') || '—'));
+    L.push('見てほしい組み合わせ：' + (d.fam.pair || '—'));
+    L.push('今気になっていること：' + (d.fam.worry || '—'));
+    L.push('これからなりたい関係：' + (d.fam.future || '—'));
+  }
+  return L.join('\n');
+}
+
+function kanteiCustomerMail_(d) {
+  const body = [
+    d.name + '様',
+    '',
+    'トリセツ鑑定書のお申し込み、ありがとうございます！',
+    'さっちゃん（髙橋さつき）です。',
+    '',
+    'お申し込みの内容を受け付けました。',
+    'このあと内容を確認して、お支払いのご案内をメールでお送りしますね。',
+    '（この時点では、まだお支払いは発生していません）',
+    '',
+    '──────────────',
+    '■ ' + KANTEI.TITLE + '　' + d.people.length + '名分',
+    '■ 合計：' + yen_(d.total) + '（税込）',
+    '■ ご希望のお支払い方法：' + d.pay,
+    '■ お届け：ご入金確認後、5〜7営業日でPDFをお送りします',
+    '──────────────',
+    '',
+    '【お申し込み内容の控え】',
+    d.text,
+    '',
+    '内容に間違いがあったときや、追加したいことがあるときは、',
+    'このメールにそのまま返信してくださいね。',
+    '',
+    'お一人おひとりのトリセツ、心をこめてお作りします♡',
+    '',
+    CONFIG.FROM_NAME,
+    CONFIG.ADMIN_EMAIL,
+    '受付番号：' + d.id,
+    '特定商取引法に基づく表記：' + KANTEI.LEGAL_URL
+  ].join('\n');
+  MailApp.sendEmail({
+    to: d.email,
+    subject: '【受付しました】トリセツ鑑定書のお申し込み（受付番号 ' + d.id + '）',
+    body: body,
+    name: CONFIG.FROM_NAME,
+    replyTo: CONFIG.ADMIN_EMAIL
+  });
+}
+
+function kanteiAdminMail_(d) {
+  MailApp.sendEmail({
+    to: CONFIG.ADMIN_EMAIL,
+    subject: '[鑑定申込] ' + d.name + '様 ' + d.people.length + '名 ' + yen_(d.total) + '（' + d.pay + '）',
+    body: [
+      'トリセツ鑑定書の新しいお申し込みです。',
+      'お支払いのご案内を、' + d.email + ' に送ってください。',
+      '（このメールに返信すると、お客さまに届きます。送ったら、シート「' + KANTEI.SHEET_NAME + '」のステータスを直してください）',
+      '',
+      d.text,
+      d.from ? ('\n（どこから来たか：' + fromLabel_(d.from) + '）') : '',
+      '',
+      '受付番号：' + d.id
+    ].join('\n'),
+    replyTo: d.email
+  });
+}
+
+function kanteiDiscord_(d) {
+  const fields = [
+    fld_('お申込者', d.name + ' 様', true),
+    fld_('人数・合計', d.people.length + '名（' + d.breakdown + '）／' + yen_(d.total), true),
+    fld_('お支払い方法', d.pay, true),
+    fld_('メール', d.email, false)
+  ];
+  d.people.forEach(function (p, i) {
+    fields.push(fld_((i + 1) + '人目：' + p.name,
+      p.kind + '・' + p.relation + '・' + p.gender + '\n' + kDate_(p.birthday) + ' ' + kTime_(p.birthtime) + '・' + p.birthpref,
+      false));
+  });
+  if (d.family) fields.push(fld_('家族全員', 'はい（特典「わが家のトリセツ」つき）', false));
+  if (d.from) fields.push(fld_('どこから来たか', fromLabel_(d.from), false));
+  notifyDiscord_({
+    title: '📝 トリセツ鑑定書の申込が入りました',
+    description: '詳しい内容はメールとシート「' + KANTEI.SHEET_NAME + '」にあります。お支払いのご案内を送ってください。',
+    color: 0xC9A961,
+    fields: fields.slice(0, 25),
+    footer: { text: '受付番号 ' + d.id }
+  });
 }
